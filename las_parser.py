@@ -7,19 +7,21 @@ import pandas as pd
 import tqdm
 
 
-
+"""_summary_
+write pandas.dataframe to db and clean it
+"""
 def reset(data):
     #print(data)
-
     db.import_from_pandas(data, 'gelsenkirchen')
     db.execute("COMMIT")
     data_frame =pd.DataFrame(columns = labels) 
-
     return data_frame
+
+path="./gelsenkirchen"
 
 #read all .laz from current working dir
 las_file_path = []
-for file in Path('.').glob('*.laz'):
+for file in Path(path).glob('*.laz'):
     #print(file.name)
     las_file_path.append(file)
     
