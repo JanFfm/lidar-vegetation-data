@@ -76,7 +76,7 @@ for i in tqdm.tqdm(range(point_number)):
 
     
 
-    if (i+1) % 10000 == 0 or (i+1) == point_number:
+    if (i+1) % 1000 == 0 or (i+1) == point_number:
         data_frame =reset(data_frame)
 
         
