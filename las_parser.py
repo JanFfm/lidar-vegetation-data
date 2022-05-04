@@ -11,7 +11,7 @@ import tqdm
 write pandas.dataframe to db and clean it
 """
 def reset(data):
-    #print(data)
+    print(data)
     db.import_from_pandas(data, 'gelsenkirchen')
     db.execute("COMMIT")
     data_frame =pd.DataFrame(columns = labels) 
@@ -25,9 +25,11 @@ for file in Path(path).glob('*.laz'):
     #print(file.name)
     las_file_path.append(file)
     
+    
 #they are in PRDF1-format
     
 las = laspy.read(las_file_path[0])
+las
 print("###2")
 print(las.header)  
 #<LasHeader(1.2, <PointFormat(1, 0 bytes of extra dims)>)>
