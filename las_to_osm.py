@@ -11,6 +11,7 @@ import folium
 import smopy
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import cv2
 from  coord_f import utm_to_lat_long
 from plot_las import plot2d, plot3d
 
@@ -47,8 +48,29 @@ def las_to_osm(filename):
     
     
     map = load_osm_tile(lat_1,long_1, lat_2, long_2,server=None) #load osm
-    rail_map = load_osm_tile(lat_1,long_1, lat_2, long_2) #öoad open railway
+    rail_map = load_osm_tile(lat_1,long_1, lat_2, long_2) #load open railway
+    rail_map = cv2.cvtColor(rail_map, cv2.COLOR_RGB2RGBA)
+    print(rail_map)
     plot3d(filename, color="Z")
 
 #load_osm_tile()
-las_to_osm("./gelsenkirchen/3dm_32_293_5650_1_nw.laz")
+#las_to_osm("./gelsenkirchen/3dm_32_293_5650_1_nw.laz")
+
+
+rail_section = ["gelsenkirchen/3dm_32_300_5651_1_nw.laz", "gelsenkirchen/3dm_32_297_5647_1_nw.laz",
+ "gelsenkirchen/3dm_32_298_5648_1_nw.laz",
+ "gelsenkirchen/3dm_32_298_5649_1_nw.laz",
+ "gelsenkirchen/3dm_32_298_5649_1_nw.laz",
+ "gelsenkirchen/3dm_32_300_5651_1_nw.laz",
+ "gelsenkirchen/3dm_32_298_5649_1_nw.laz",
+ "gelsenkirchen/3dm_32_300_5651_1_nw.laz",
+"gelsenkirchen/3dm_32_300_5651_1_nw.laz",
+"gelsenkirchen/3dm_32_294_5651_1_nw.laz",
+"gelsenkirchen/3dm_32_294_5651_1_nw.laz",
+"gelsenkirchen/3dm_32_295_5651_1_nw.laz",
+"gelsenkirchen/3dm_32_297_5648_1_nw.laz"]
+
+## "gelsenkirchen/3dm_32_300_5651_1_nw.laz" viel schiene, aber kein osm
+
+for file in rail_section:
+    las_to_osm(file)
