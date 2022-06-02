@@ -55,7 +55,7 @@ def plot2d(file="./gelsenkirchen/3dm_32_293_5650_1_nw.laz", color='classificatio
     geom.points = o3d.utility.Vector3dVector(point_data)
     o3d.visualization.draw_geometries([geom])
     
-
-#plot3d()
+las= laspy.read("colored_files_gelsenkirchen/3dm_32_293_5647_1_nw.laz")
+#plot3d(las)
 
 
