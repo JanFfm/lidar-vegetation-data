@@ -43,6 +43,7 @@ def dbscan():
     
     print("selectiong points for clustering")
     #### das exclude ist halt sehr lidar-nrw-spezifisch!!!!
+    #### bei number of returns > 2 bleiben die lsiten leer!
     large_cluster_points = np.array([[x[i], y[i], z[i]] for i in tqdm(range(length)) if (classification[i] not in exclude )]) 
     small_cluster_points = np.array([[x[i], y[i], z[i]] for i in tqdm(range(length)) if (number_of_returns[i] > 1 and classification[i] not in exclude )]) 
     #x, y, z, _ = zip(*filter(check_classification(), zip(x,y,z, classification)))
@@ -53,17 +54,17 @@ def dbscan():
     small_indices = np.array([i for i in tqdm(range(length)) if (number_of_returns[i] > 1 and classification[i] not in exclude)])
     
     print("clustering")
-    large_cluster = DBSCAN(eps=0.8, min_samples=4).fit(large_cluster_points)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
+    large_cluster = DBSCAN(eps=1, min_samples=1).fit(large_cluster_points)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
      
     large_labels = large_cluster.labels_
     
-    small_cluster  = DBSCAN(eps=0.8, min_samples=6).fit(small_cluster_points) 
+    small_cluster  = DBSCAN(eps=1, min_samples=1).fit(small_cluster_points) 
     small_labels = small_cluster.labels_
     
     print("plotting:")
     plot_labels_with_sat(large_cluster_points, large_labels, large_indices, x, y, z, r, g, b)
     plot_labels_with_sat(small_cluster_points, small_labels, small_indices, x, y, z, r, g, b)
-
+    """
     centroids = np.array([])
     visited_labels =np.array([])
     
@@ -113,7 +114,7 @@ def dbscan():
     #filter unlabeld points:
     print("unfiltered: points, labels", final_points.shape, final_labels.shape)
 
-
+"""
 def plot_labels_with_sat(final_points, final_labels, final_indices, x, y, z, r, g, b):
     points, labels, indices= zip(*((p, l, i) for p, l,i in zip(final_points, final_labels, final_indices) if l > -1))
     points = np.array(points)
