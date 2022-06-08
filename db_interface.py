@@ -39,7 +39,7 @@ def save_to_db(las, name, postfix):
     frames = [id_frame, data_frame]
     data_frame = pd.concat(frames)
     #print(data_frame.describe())    
-    db = pyexasol.connect(dsn=db_settings.connection_string, user=db_settings.username, password=db_settings.pw,schema="lidar_schema", autocommit=True) #, schema='lidar'
+    db = db_settings.db()
     #db.execute("""Create Table lidar.gelsenkichen""")
     table_name = name + "_" +str(postfix)
     #db.execute("""DROP TABLE """+table_name+"""""")
