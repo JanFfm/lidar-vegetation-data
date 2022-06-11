@@ -57,6 +57,7 @@ def alle_gattungen(min_size=2):
     return alle
 def check_gattung_in_db(gattungs_list):
     gattungen_in_db =numpy.array(db.export_to_pandas("""SELECT * FROM biologie.gattungen  ORDER BY id""")['WISS_NAME'])
+    print(gattungen_in_db)
     not_in_db =numpy.empty(0)
     in_db =numpy.empty(0)
     for i in range(len(gattungs_list)):
@@ -68,7 +69,16 @@ def check_gattung_in_db(gattungs_list):
     print("not in db: ", not_in_db, not_in_db.shape)
     return not_in_db
 
+
+
+def read_koeln_kataster():
+    kataster = pandas.read_csv(kataster_koeln, sep=';', encoding ='utf-8')
+    kataster = kataster[kataster.Gattung != 'NaN']
+    print(kataster)
+
+
     
 
-alle = alle_gattungen()
-check_gattung_in_db(alle)
+#alle = alle_gattungen()
+#check_gattung_in_db(alle)
+read_koeln_kataster()
