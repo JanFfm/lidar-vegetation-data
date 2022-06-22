@@ -1,0 +1,34 @@
+{
+    "tool_name": "LidarEigenvalueFeatures",
+    "exe": "lidar_eigenvalue_features",
+    "short_description": "Calculate eigenvalue-based metrics from a LiDAR point cloud.",
+    "toolbox": "LiDAR Tools",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=LidarEigenvalueFeatures -i=input.las -o=output.las --radius=2.5",
+    "parameters": [
+        {
+            "name": "Input LiDAR Points",
+            "flags": ["-i", "--input"],
+            "description": "Name of the input LiDAR points.",
+            "parameter_type": {"ExistingFile":"Lidar"},
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Number of Neighbours:",
+            "flags": ["--num_neighbours"],
+            "description": "Number of neighbours used in search.",
+            "parameter_type": "Integer",
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Search Distance:",
+            "flags": ["--radius"],
+            "description": "Search distance used in neighbourhood search.",
+            "parameter_type": "Float",
+            "default_value": null,
+            "optional": true
+        }
+    ]
+}

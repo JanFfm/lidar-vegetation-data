@@ -1,0 +1,58 @@
+{
+    "tool_name": "ColourizeBasedOnClass",
+    "exe": "colourize_based_on_class",
+    "short_description": "Sets the RGB values of a LiDAR point cloud based on the point classification values.",
+    "toolbox": "LiDAR Tools",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=ColourizeBasedOnClass -i=input.las -o=output.las --clr_str='2: (184, 167, 108); 5: (100, 255, 50)' --use_unique_clrs_for_buildings --radius=2.5",
+    "parameters": [
+        {
+            "name": "Input LiDAR Points",
+            "flags": ["-i", "--input"],
+            "description": "Name of the input LiDAR points.",
+            "parameter_type": {"ExistingFile":"Lidar"},
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Output LiDAR Points",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output LiDAR points.",
+            "parameter_type": {"NewFile":"Lidar"},
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Intensity Blending Amount (0-100%):",
+            "flags": ["--intensity_blending"],
+            "description": "Intensity blending amount (0-100%).",
+            "parameter_type": "Float",
+            "default_value": "50.0",
+            "optional": true
+        },
+        {
+            "name": "Colour values:",
+            "flags": ["--clr_str"],
+            "description": "Colour values, e.g. 2: (184, 167, 108); 5: #9ab86c",
+            "parameter_type": "String",
+            "default_value": "",
+            "optional": true
+        },
+        {
+            "name": "Use unique colours for each building?",
+            "flags": ["--use_unique_clrs_for_buildings"],
+            "description": "Use unique colours for each building?",
+            "parameter_type": "Boolean",
+            "default_value": "false",
+            "optional": true
+        },
+        {
+            "name": "Search Distance:",
+            "flags": ["--radius"],
+            "description": "Search distance used in neighbourhood search.",
+            "parameter_type": "Float",
+            "default_value": "",
+            "optional": true
+        }
+    ]
+}

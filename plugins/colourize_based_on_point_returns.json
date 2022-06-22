@@ -1,0 +1,66 @@
+{
+    "tool_name": "ColourizeBasedOnPointReturns",
+    "exe": "colourize_based_on_point_returns",
+    "short_description": "Sets the RGB values of a LiDAR point cloud based on the point returns.",
+    "toolbox": "LiDAR Tools",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=ColourizeBasedOnPointReturns -i=input.las -o=output.las",
+    "parameters": [
+        {
+            "name": "Input LiDAR Points",
+            "flags": ["-i", "--input"],
+            "description": "Name of the input LiDAR points.",
+            "parameter_type": {"ExistingFile":"Lidar"},
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Output LiDAR Points",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output LiDAR points.",
+            "parameter_type": {"NewFile":"Lidar"},
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Intensity Blending Amount (0-100%):",
+            "flags": ["--intensity_blending"],
+            "description": "Intensity blending amount (0-100%).",
+            "parameter_type": "Float",
+            "default_value": "50.0",
+            "optional": true
+        },
+        {
+            "name": "Only Return Colour",
+            "flags": ["--only"],
+            "description": "Only return colour, e.g. (230,214,170), #e6d6aa, or 0xe6d6aa.",
+            "parameter_type": "String",
+            "default_value": "(230,214,170)",
+            "optional": true
+        },
+        {
+            "name": "First Return Colour",
+            "flags": ["--first"],
+            "description": "First return colour, e.g. (230,214,170), #e6d6aa, or 0xe6d6aa.",
+            "parameter_type": "String",
+            "default_value": "(0,140,0)",
+            "optional": true
+        },
+        {
+            "name": "Intermediate Return Colour",
+            "flags": ["--intermediate"],
+            "description": "Intermediate return colour, e.g. (230,214,170), #e6d6aa, or 0xe6d6aa.",
+            "parameter_type": "String",
+            "default_value": "(255,0,255)",
+            "optional": true
+        },
+        {
+            "name": "Last Return Colour",
+            "flags": ["--last"],
+            "description": "Last return colour, e.g. (230,214,170), #e6d6aa, or 0xe6d6aa.",
+            "parameter_type": "String",
+            "default_value": "(0,0,255)",
+            "optional": true
+        }
+    ]
+}

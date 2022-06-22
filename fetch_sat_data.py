@@ -2,6 +2,7 @@ from owslib.wms import WebMapService
 from PIL import Image
 import numpy as np
 
+"""Get DOP-Satelite color map in x1,y1 / x2,y2 coordinates from nrw-geo-prtal"""
 def fetch (x1, y1, x2, y2, size=5000):
     """_summary_
     https://pypi.org/project/OWSLib/

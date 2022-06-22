@@ -15,7 +15,9 @@ Based on https://medium.com/spatial-data-science/an-easy-way-to-work-and-visuali
 
 color elem of: ['X', 'Y', 'Z', 'intensity', 'return_number', 'number_of_returns', 'scan_direction_flag',  'edge_of_flight_line', 'classification', 'synthetic', 'key_point', 'withheld', 'scan_angle_rank', 'user_data', 'point_source_id', 'gps_time'] 
 """
-def plot3d(las, color=None):        
+def plot3d(las, color=None):
+    """
+    """        
     #las = laspy.read(file)
     #color_map = np.array(las[color])
     #color_map = color_map / color_map.max() # scale to [0 ,.., 1]
@@ -48,14 +50,19 @@ can set 'category' or other las-index as Z dimension, which is also default colo
 much faster than plot 3d 
 color elem of: ['X', 'Y', 'Z', 'intensity', 'return_number', 'number_of_returns', 'scan_direction_flag',  'edge_of_flight_line', 'classification', 'synthetic', 'key_point', 'withheld', 'scan_angle_rank', 'user_data', 'point_source_id', 'gps_time'] 
 """    
-def plot2d(file="./gelsenkirchen/3dm_32_293_5650_1_nw.laz", color='classification'):
-    las = laspy.read(file)
+def plot2d(las, color='classification'):
+    """_summary_
+
+    Args:
+        las (_type_): _description_
+        color (str, optional): _description_. Defaults to 'classification'.
+    """
     point_data = np.stack([las.X, las.Y,las[color]], axis=0).transpose((1, 0))
     geom = o3d.geometry.PointCloud()
     geom.points = o3d.utility.Vector3dVector(point_data)
     o3d.visualization.draw_geometries([geom])
     
-las= laspy.read("colored_files_gelsenkirchen/3dm_32_293_5647_1_nw.laz")
+#las= laspy.read("gelsenkrichen classified/test1color.laz")
 #plot3d(las)
 
 

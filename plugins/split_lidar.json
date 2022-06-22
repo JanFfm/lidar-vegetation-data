@@ -1,0 +1,42 @@
+{
+    "tool_name": "SplitLidar",
+    "exe": "split_lidar",
+    "short_description": "Splits LiDAR points up into a series of new files based on their properties.",
+    "toolbox": "LiDAR Tools",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=SplitLidar -i=input.las --criterion=z --interval=10.0 --min_pts=10",
+    "parameters": [
+        {
+            "name": "Input LiDAR Points",
+            "flags": ["-i", "--input"],
+            "description": "Name of the input LiDAR points.",
+            "parameter_type": {"ExistingFile":"Lidar"},
+            "default_value": null,
+            "optional": true
+        },
+        {
+            "name": "Split Criterion",
+            "flags": ["--criterion"],
+            "description": "Criterion on which to base the split of the input file. Options include 'num_pts, 'x', 'y', 'z', intensity, 'class', 'user_data', 'point_source_id', 'scan_angle', 'time'",
+            "parameter_type": {"OptionList": ["num_pts", "x", "y", "z", "intensity", "class", "user_data", "point_source_id", "scan_angle", "time"]},
+            "default_value": "num_pts",
+            "optional": false
+        },
+        {
+            "name": "Interval",
+            "flags": ["--interval"],
+            "description": "Interval",
+            "parameter_type": "Float",
+            "default_value": "",
+            "optional": true
+        },
+        {
+            "name": "Minimum Number of Points",
+            "flags": ["--min_pts"],
+            "description": "Minimum number of points in an output file",
+            "parameter_type": "Integer",
+            "default_value": "5",
+            "optional": true
+        }
+    ]
+}

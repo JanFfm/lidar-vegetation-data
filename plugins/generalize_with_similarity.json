@@ -1,0 +1,42 @@
+{
+    "tool_name": "GeneralizeWithSimilarity",
+    "exe": "generalize_with_similarity",
+    "short_description": "Generalizes a raster containing class or object features by removing small features using similarity criteria of neighbouring features.",
+    "toolbox": "Image Processing Tools/Classification",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=GeneralizeWithSimilarity -i='classMap.tif' --similarity='band1.tif;band2.tif;band3.tif'  -o=newClassMap.tif --min_size=5",
+    "parameters": [
+        {
+            "name": "Input Raster Image",
+            "flags": ["-i", "--input"],
+            "description": "Name of the input raster image file.",
+            "parameter_type": {"ExistingFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Input Similarity Images",
+            "flags": ["--similarity"],
+            "description": "Names of the input similarity images.",
+            "parameter_type": {"FileList":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Output Raster File",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output raster file.",
+            "parameter_type": {"NewFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Min. Feature Size (in grid cells)",
+            "flags": ["--min_size"],
+            "description": "Minimum feature size, in grid cells.",
+            "parameter_type": "Integer",
+            "default_value": "4",
+            "optional": true
+        }
+    ]
+}

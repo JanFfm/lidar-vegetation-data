@@ -1,0 +1,32 @@
+{
+"bounds": [302000.000000, 5648000.000000, 87.920000, 302999.990000, 5648999.990000, 1087.910000],
+"boundsConforming": [302000.000000, 5648000.000000, 87.920000, 302999.990000, 5648999.990000, 168.970000],
+"dataType": "laszip",
+"hierarchyType": "json",
+"points": 6489586,
+"span": 128,
+"version": "1.0.0",
+"schema": [
+	{"name": "X", "type": "float", "scale": 0.01, "offset": 302500, "size": 8, "count": 6489586, "maximum": 303000, "minimum": 302000, "mean": 302507, "stddev": 291.718, "variance": 85099.4},
+	{"name": "Y", "type": "float", "scale": 0.01, "offset": 5.6485e+06, "size": 8, "count": 6489586, "maximum": 5.649e+06, "minimum": 5.648e+06, "mean": 5.64849e+06, "stddev": 283.343, "variance": 80283.1},
+	{"name": "Z", "type": "float", "scale": 0.01, "offset": 587.915, "size": 8, "count": 6489586, "maximum": 168.97, "minimum": 87.92, "mean": 98.1609, "stddev": 4.60961, "variance": 21.2485},
+	{"name": "Intensity", "type": "unsigned", "size": 2, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "ReturnNumber", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 2, "minimum": 1, "mean": 1.08528, "stddev": 0.279304, "variance": 0.0780107},
+	{"name": "NumberOfReturns", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 2, "minimum": 1, "mean": 1.08528, "stddev": 0.279304, "variance": 0.0780107},
+	{"name": "ScanChannel", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "ScanDirectionFlag", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "PointSourceId", "type": "unsigned", "size": 2, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "Classification", "type": "unsigned", "size": 1, "counts": [ {"value": 24, "count": 62}, {"value": 2, "count": 5649400}, {"value": 20, "count": 837967}, {"value": 26, "count": 8}, {"value": 17, "count": 94}, {"value": 21, "count": 2055}], "count": 6489586, "maximum": 26, "minimum": 2, "mean": 4.33072, "stddev": 6.04377, "variance": 36.5271},
+	{"name": "EdgeOfFlightLine", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "ScanAngleRank", "type": "float", "size": 4, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "UserData", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "GpsTime", "type": "float", "size": 8, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "Red", "type": "unsigned", "size": 2, "count": 6489586, "maximum": 255, "minimum": 0, "mean": 131.067, "stddev": 36.6998, "variance": 1346.87},
+	{"name": "Green", "type": "unsigned", "size": 2, "count": 6489586, "maximum": 255, "minimum": 13, "mean": 132.516, "stddev": 26.6751, "variance": 711.56},
+	{"name": "Blue", "type": "unsigned", "size": 2, "count": 6489586, "maximum": 255, "minimum": 9, "mean": 111.529, "stddev": 23.9873, "variance": 575.391},
+	{"name": "Infrared", "type": "unsigned", "size": 2, "count": 6489586, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "ClassFlags", "type": "unsigned", "size": 1, "count": 6489586, "maximum": 1, "minimum": 0, "mean": 0.000317894, "stddev": 0.0178267, "variance": 0.000317793}
+],
+"srs": {
+}
+}

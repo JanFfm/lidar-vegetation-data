@@ -1,0 +1,90 @@
+{
+    "tool_name": "ImageSlider",
+    "exe": "image_slider",
+    "short_description": "This tool creates an image slider from two input images.",
+    "toolbox": "Image Processing Tools",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=ImageSlider --i1=band1.tif --p1=soft --r1=false --l1=\"Label 1\" --i2=band2.tif --p1=soft --r2=false --l2=\"Label 2\" -o=class_properties.html",
+    "parameters": [
+        {
+            "name": "Left Input Raster Image",
+            "flags": ["--i1", "--input1"],
+            "description": "Name of the left input image file.",
+            "parameter_type": {"ExistingFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Left Image Palette",
+            "flags": ["--p1", "--palette1"],
+            "description": "Left image palette; options are 'grey', 'atlas', 'high_relief', 'arid', 'soft', 'muted', 'purple', 'viridi', 'gn_yl', 'pi_y_g', 'bl_yl_rd', 'deep', and 'rgb'.",
+            "parameter_type": {"OptionList": ["grey", "atlas", "high_relief", "arid", "soft", "muted", "purple", "viridi", "gn_yl", "pi_y_g", "bl_yl_rd", "deep", "rgb"]},
+            "default_value": "grey",
+            "optional": true
+        },
+        {
+            "name": "Reverse left image palette?",
+            "flags": ["--r1", "--reverse1"],
+            "description": "Reverse left image palette?",
+            "parameter_type": "Boolean",
+            "default_value": "false",
+            "optional": false
+        },
+        {
+            "name": "Left Image Label (blank for none)",
+            "flags": ["--l1", "--label1"],
+            "description": "Left image label (leave blank for none)",
+            "parameter_type": "String",
+            "default_value": "",
+            "optional": true
+        },
+        {
+            "name": "Right Input Raster Image",
+            "flags": ["--i2", "--input2"],
+            "description": "Name of the right input image file.",
+            "parameter_type": {"ExistingFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Right Image Palette",
+            "flags": ["--p2", "--palette2"],
+            "description": "Right image palette; options are 'grey', 'atlas', 'high_relief', 'arid', 'soft', 'muted', 'purple', 'viridi', 'gn_yl', 'pi_y_g', 'bl_yl_rd', 'deep', and 'rgb'.",
+            "parameter_type": {"OptionList": ["grey", "atlas", "high_relief", "arid", "soft", "muted", "purple", "viridi", "gn_yl", "pi_y_g", "bl_yl_rd", "deep", "rgb"]},
+            "default_value": "grey",
+            "optional": true
+        },
+        {
+            "name": "Reverse right image palette?",
+            "flags": ["--r2", "--reverse2"],
+            "description": "Reverse right image palette?",
+            "parameter_type": "Boolean",
+            "default_value": "false",
+            "optional": false
+        },
+        {
+            "name": "Right Image Label (blank for none)",
+            "flags": ["--l2", "--label2"],
+            "description": "Right image label (leave blank for none)",
+            "parameter_type": "String",
+            "default_value": "",
+            "optional": true
+        },
+        {
+            "name": "Output File (*.html)",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output HTML file (*.html).",
+            "parameter_type": {"NewFile":"Html"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Image Height (in pixels)",
+            "flags": ["-h", "--height"],
+            "description": "Image height, in pixels.",
+            "parameter_type": "Integer",
+            "default_value": "600",
+            "optional": true
+        }
+    ]
+}

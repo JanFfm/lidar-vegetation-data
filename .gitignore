@@ -1,4 +1,4 @@
-.las
-.laz
+*.las
 *.laz
+*.dbf
 db_settings.py

@@ -1,0 +1,42 @@
+{
+    "tool_name": "ParallelepipedClassification",
+    "exe": "parallelepiped_classification",
+    "short_description": "Performs a supervised parallelepiped classification using training site polygons and multi-spectral images.",
+    "toolbox": "Image Processing Tools/Classification",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=ParallelepipedClassification -i='band1.tif; band2.tif; band3.tif; band4.tif' -p=training_sites.shp -f='LAND_COVER' -o=classified.tif",
+    "parameters": [
+        {
+            "name": "Input Band Images",
+            "flags": ["-i", "--inputs"],
+            "description": "Name of the input band images.",
+            "parameter_type": {"FileList":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Input Training Polygons",
+            "flags": ["-p", "--polys"],
+            "description": "Name of the input training site polygons shapefile.",
+            "parameter_type": {"ExistingFile":{"Vector":"Polygon"}},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Class Name Field",
+            "flags": ["-f", "--field"],
+            "description": "Name of the attribute containing class name data.",
+            "parameter_type": "String",
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Output Raster File",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output raster file.",
+            "parameter_type": {"NewFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        }
+    ]
+}

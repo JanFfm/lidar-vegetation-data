@@ -1,0 +1,34 @@
+{
+    "tool_name": "PhiCoefficient",
+    "exe": "phi_coefficient",
+    "short_description": "This tool performs a binary classification accuracy assessment.",
+    "toolbox": "Math and Stats Tools",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=PhiCoefficient --input1=image1.tif --input2=image2.tif' -o=PhiReport.html",
+    "parameters": [
+        {
+            "name": "Input Raster Image 1",
+            "flags": ["--input1"],
+            "description": "Name of the first input raster image file.",
+            "parameter_type": {"ExistingFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Input Raster Image 2",
+            "flags": ["--input2"],
+            "description": "Name of the second input raster image file.",
+            "parameter_type": {"ExistingFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Output HTML File",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output HTML file.",
+            "parameter_type": {"NewFile":"Html"},
+            "default_value": null,
+            "optional": false
+        }
+    ]
+}

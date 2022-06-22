@@ -1,0 +1,42 @@
+{
+    "tool_name": "GeneralizeClassifiedRaster",
+    "exe": "generalize_classified_raster",
+    "short_description": "Generalizes a raster containing class or object features by removing small features.",
+    "toolbox": "Image Processing Tools/Classification",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=GeneralizeClassifiedRaster -i='classMap.tif' -o=newClassMap.tif --min_size=5 --method='longest'",
+    "parameters": [
+        {
+            "name": "Input Raster Image",
+            "flags": ["-i", "--input"],
+            "description": "Name of the input raster image file.",
+            "parameter_type": {"ExistingFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Output Raster File",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output raster file.",
+            "parameter_type": {"NewFile":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Min. Feature Size (in grid cells)",
+            "flags": ["--min_size"],
+            "description": "Minimum feature size, in grid cells.",
+            "parameter_type": "Integer",
+            "default_value": "4",
+            "optional": true
+        },
+        {
+            "name": "Method",
+            "flags": ["--method"],
+            "description": "Grouping method; one of 'longest' (default), 'largest', and 'nearest'.",
+            "parameter_type": {"OptionList": ["longest", "largest", "nearest"]},
+            "default_value": "longest",
+            "optional": true
+        }
+    ]
+}

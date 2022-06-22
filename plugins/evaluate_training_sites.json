@@ -1,0 +1,42 @@
+{
+    "tool_name": "EvaluateTrainingSites",
+    "exe": "evaluate_training_sites",
+    "short_description": "This tool can be used to inspect the overlap in spectral signatures of training sites for various classes.",
+    "toolbox": "Image Processing Tools/Classification",
+    "license": "Proprietary",
+    "example": ">> .*EXE_NAME -r=EvaluateTrainingSites --inputs=\"band1.tif;band2.tif;band3.tif;band4.tif\" --polys=training_sites.shp --field=CLASS -o=class_properties.html",
+    "parameters": [
+        {
+            "name": "Input Band Images",
+            "flags": ["-i", "--inputs"],
+            "description": "Name of the input band images.",
+            "parameter_type": {"FileList":"Raster"},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Input Training Polygons",
+            "flags": ["-p", "--polys"],
+            "description": "Name of the input training site polygons shapefile.",
+            "parameter_type": {"ExistingFile":{"Vector":"Polygon"}},
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Class Name Field",
+            "flags": ["-f", "--field"],
+            "description": "Name of the attribute containing class name data.",
+            "parameter_type": "String",
+            "default_value": null,
+            "optional": false
+        },
+        {
+            "name": "Output File (*.html)",
+            "flags": ["-o", "--output"],
+            "description": "Name of the output report file (*.html).",
+            "parameter_type": {"NewFile":"Html"},
+            "default_value": null,
+            "optional": false
+        }
+    ]
+}
