@@ -12,20 +12,14 @@ from tqdm import tqdm
 import random
 
 import plot_las
-exclude = [2]
-e_2 = [ i for i in range(6, 19)]
-exclude = exclude + e_2
-def check_classification(x_1,y_2,z_2, classification):
-    if classification not in exclude:
-        return True
-    else:
-        return False
+from colors import get_classification_color
+import os
 
 
-def dbscan():
 
-    print(exclude)
-    las = laspy.read("colored_files_gelsenkirchen/3dm_32_293_5647_1_nw.laz")
+def dbscan(eps=1,min_samples=1, include_med_veg = False):
+
+    las = laspy.read(os.path.join(os.getcwd(),"lidar-files/4merged/Wesel/3dm_32_327_5723_1_nw.laz"))
     length = len(las.points['x'])
     print(length)
     x = las.points['x']
@@ -36,34 +30,37 @@ def dbscan():
     print(number_of_returns)
     
     #plot_las.plot3d(las)
-    r = las.points['red'] /255
-    g = las.points['green'] /255
-    b = las.points['blue'] /255
+    #r = las.points['red'] /255
+    #g = las.points['green'] /255
+    #b = las.points['blue'] /255
     # number_of_returns[i] > 1 and 
     
     print("selectiong points for clustering")
     #### das exclude ist halt sehr lidar-nrw-spezifisch!!!!
     #### bei number of returns > 2 bleiben die lsiten leer!
-    large_cluster_points = np.array([[x[i], y[i], z[i]] for i in tqdm(range(length)) if (classification[i] not in exclude )]) 
-    small_cluster_points = np.array([[x[i], y[i], z[i]] for i in tqdm(range(length)) if (number_of_returns[i] > 1 and classification[i] not in exclude )]) 
+    if include_med_veg:
+        poins_to_cluster = np.array([[x[i], y[i], z[i]] for i in tqdm(range(length)) if (classification[i] == 4 or classification[i] == 5)]) 
+        print("selecting indices:")
+
+        indices_of_cluster_points = np.array([i for i in tqdm(range(length)) if (classification[i] == 4 or classification[i] == 5)]) 
+    else:
+        poins_to_cluster = np.array([[x[i], y[i], z[i]] for i in tqdm(range(length)) if (classification[i] == 5)]) 
+        print("selecting indices:")
+        indices_of_cluster_points = np.array([i for i in tqdm(range(length)) if (classification[i] == 5)]) 
     #x, y, z, _ = zip(*filter(check_classification(), zip(x,y,z, classification)))
     #all_cluster_points = np.array([x, y, z]).transpose((1, 0))
     #print(all_cluster_points)
-    print("selecting indices:")
-    large_indices = np.array([i for i in tqdm(range(length)) if (classification[i] not in exclude)]) 
-    small_indices = np.array([i for i in tqdm(range(length)) if (number_of_returns[i] > 1 and classification[i] not in exclude)])
+  
     
     print("clustering")
-    large_cluster = DBSCAN(eps=1, min_samples=1).fit(large_cluster_points)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
+    cluster = DBSCAN(eps=eps, min_samples=min_samples).fit(poins_to_cluster)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
      
-    large_labels = large_cluster.labels_
+    large_labels = cluster.labels_
     
-    small_cluster  = DBSCAN(eps=1, min_samples=1).fit(small_cluster_points) 
-    small_labels = small_cluster.labels_
+
     
     print("plotting:")
-    plot_labels_with_sat(large_cluster_points, large_labels, large_indices, x, y, z, r, g, b)
-    plot_labels_with_sat(small_cluster_points, small_labels, small_indices, x, y, z, r, g, b)
+    plot_labels_with_sat(poins_to_cluster, large_labels, indices_of_cluster_points, x, y, z, None, classification)
     """
     centroids = np.array([])
     visited_labels =np.array([])
@@ -74,7 +71,7 @@ def dbscan():
 
     for point, label in tqdm(zip(small_cluster_points, small_labels)):
         if label not in visited_labels:
-            if point in large_cluster_points:                
+            if point in poins_to_cluster:                
                 centroids = np.append(centroids, point)
                 visited_labels=np.append(visited_labels, label)
     # jetzt ist aus jedem label ein punkt in centroids
@@ -91,13 +88,13 @@ def dbscan():
         #final_points.append(point)
         #final_labels.append(i)
         
-        index= np.where(large_cluster == point)   #das == stimmt nicht..
+        index= np.where(cluster == point)   #das == stimmt nicht..
         label = large_labels[index]
         for i in range(len(large_labels)):
             if large_labels[i] == label:
-                    final_points= np.append(final_points, large_cluster[i])
+                    final_points= np.append(final_points, cluster[i])
                     final_labels= np.append(final_labels, i)
-                    final_indices= np.append(final_indices, large_indices[i])
+                    final_indices= np.append(final_indices, indices_of_cluster_points[i])
                 
         
         
@@ -115,7 +112,7 @@ def dbscan():
     print("unfiltered: points, labels", final_points.shape, final_labels.shape)
 
 """
-def plot_labels_with_sat(final_points, final_labels, final_indices, x, y, z, r, g, b):
+def plot_labels_with_sat(final_points, final_labels, final_indices, x, y, z,rgb=None, classifications=None):
     points, labels, indices= zip(*((p, l, i) for p, l,i in zip(final_points, final_labels, final_indices) if l > -1))
     points = np.array(points)
     labels = np.array(labels)
@@ -139,15 +136,24 @@ def plot_labels_with_sat(final_points, final_labels, final_indices, x, y, z, r, 
     color_map = np.array([[label_colors[labels[i] + factor ][0], label_colors[labels[i]+ factor][1],label_colors[labels[i]+ factor][2]] for i in tqdm(range(point_number))])
     print("color_map shape, indices", color_map.shape)
     
+    if rgb!=None:
+        r,g,b = rgb
+        print("painting clusters:")
+        for j in tqdm(range(len(indices))):
+            r[indices[j]] = color_map[j][0]
+            g[indices[j]] = color_map[j][1]
+            b[indices[j]] = color_map[j][2]
+        colors = np.array([r, g, b]).transpose((1, 0))
+    #colorize by classification
+    else:
+        print("colorize points by classification-number:")
+        colors = np.array([get_classification_color(classifications[i])for i in tqdm(range(len(classifications)))])
+        print("painting clusters:")
+        for j in tqdm(range(len(indices))):
+            colors[indices[j]] = color_map[j]          
     
-    
-    for j in tqdm(range(len(indices))):
-        r[indices[j]] = color_map[j][0]
-        g[indices[j]] = color_map[j][1]
-        b[indices[j]] = color_map[j][2]
-    colors = np.array([r, g, b]).transpose((1, 0))
+  
     point_cloud = np.array([x, y, z]).transpose((1, 0))
-    #print("colors, points, labels, ",len(colors), all_points_number, labels.max() +1)
     
     plot_cluster(point_cloud, colors)
     
