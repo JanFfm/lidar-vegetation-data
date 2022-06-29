@@ -17,6 +17,16 @@ def utm_to_lat_long(x, y, section=32):
     print(latlong)
     return latlong
 
-def lat_long_to_gps(lat, long):
-    point = geopy.Point(lat, long)
-    pass
+
+def lat_long_to_utm(lat, long):
+    """_summary_
+
+    Args:
+        lat (_type_): y
+        long (_type_): x
+    Returns:
+        _type_: _description_
+    """
+    u = utm.from_latlon(lat,long)
+    return u
+    

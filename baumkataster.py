@@ -5,10 +5,14 @@ import db_settings
 import pyexasol
 import tqdm
 import geojson 
-kataster_gelsenkirchen = "baumkataster_ge.csv"
-kataster_koeln = "Bestand_Einzelbaeume_Koeln_0_repaired.csv"
-kataster_wesel = "Baumkataster.csv"
-kataster_wesel_json = "Baumkataster.geojson"
+import coord_f
+import geopandas as gpd
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
+kataster_gelsenkirchen = "baumkataster/baumkataster_ge.csv"
+kataster_koeln = "baumkataster/Bestand_Einzelbaeume_Koeln_0_repaired.csv"
+kataster_wesel = "baumkataster/Baumkataster.csv"
+kataster_wesel_json = "baumkataster/Baumkataster.geojson"
 db = db_settings.db()
 
 
@@ -118,7 +122,7 @@ def read_koeln_kataster():
 
         y = row['Y_Koordina']
 
-        gattung= str(row['Gattung']).lower()
+        gattung= str(row['Gattung']).lower().strip()
         if gattung in gattungen:
             gattungs_id = gattungen[gattung]
         else: 
@@ -177,7 +181,7 @@ def read_kataster_wesel():
     counter = 0
     for tree in gj['features']:
         x, y = tree['geometry']['coordinates']
-        gattung =  str(tree['properties']['GATTUNG']).lower()
+        gattung =  str(tree['properties']['GATTUNG']).lower().strip()
         if gattung in gattungen:
                 gattungs_id = gattungen[gattung]
         else: 
@@ -203,6 +207,7 @@ def read_kataster_wesel():
         
         if gattung != 'NaN' and gattungs_id != None:
                 #try:
+                x, y, _, _ = coord_f.lat_long_to_utm(y,x)
                 w_request = w_request+ """("""+str(x)+""","""+str(y)+""","""+str(gattungs_id)+""","""+ str(3)+"""),"""
                    
 
@@ -226,8 +231,37 @@ def read_kataster_wesel():
     db.execute(w_request)
     db.commit()
  
+def compare_kataster_lidar_mapping(city_code=3):
+    request = """SELECT * FROM BAEUME.BAEUME WHERE STADT=""" + str(city_code)
+    request = """SELECT * FROM BAEUME.BAEUME WHERE STADT=""" + str(city_code)
 
+    trees =db.export_to_pandas(request)
+    request = """SELECT * FROM lidar.lidar_files WHERE STADT=""" + str(city_code)
+    files =db.export_to_pandas(request)
+
+
+    x_max = numpy.array(files['X_MAX'])
+    x_min = numpy.array(files['X_MIN'])
+    y_max = numpy.array(files['Y_MAX'])
+    y_min = numpy.array(files['Y_MIN'])
+    file_polygons = []
+    for i in range(len(x_max)):
+        point_list = [Point(x_min[i], y_min[i]), Point(x_max[i], y_min[i]),Point(x_max[i], y_max[i]),Point(x_min[i], y_max[i])]
+        file_polygons.append(Polygon(point_list))
+    tree_points = []
+    for x,y in zip(trees['X'], trees['Y']):
+        tree_points.append(Point(x,y))
+    for tree in tree_points:
+        for p in file_polygons:
+            p.contains(tree)
+            
+            
         
-read_koeln_kataster()
-read_kataster_wesel()
+
+compare_kataster_lidar_mapping()
+
+    
+        
+#read_koeln_kataster()
+#read_kataster_wesel()
     
