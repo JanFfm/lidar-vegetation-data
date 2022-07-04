@@ -1,0 +1,27 @@
+{
+"bounds": [327000.000000, 5731000.000000, 14.640000, 327999.990000, 5731999.990000, 1014.630000],
+"boundsConforming": [327000.000000, 5731000.000000, 14.640000, 327999.990000, 5731999.990000, 152.810000],
+"dataType": "laszip",
+"hierarchyType": "json",
+"points": 5023344,
+"span": 128,
+"version": "1.0.0",
+"schema": [
+	{"name": "X", "type": "float", "scale": 0.01, "offset": 327500, "size": 8, "count": 5023344, "maximum": 328000, "minimum": 327000, "mean": 327533, "stddev": 307.962, "variance": 94840.3},
+	{"name": "Y", "type": "float", "scale": 0.01, "offset": 5.7315e+06, "size": 8, "count": 5023344, "maximum": 5.732e+06, "minimum": 5.731e+06, "mean": 5.73154e+06, "stddev": 279.626, "variance": 78190.5},
+	{"name": "Z", "type": "float", "scale": 0.01, "offset": 514.635, "size": 8, "count": 5023344, "maximum": 152.81, "minimum": 14.64, "mean": 18.4835, "stddev": 5.8889, "variance": 34.6791},
+	{"name": "Intensity", "type": "unsigned", "size": 2, "count": 5023344, "maximum": 65535, "minimum": 0, "mean": 31695.6, "stddev": 16283.9, "variance": 2.65166e+08},
+	{"name": "ReturnNumber", "type": "unsigned", "size": 1, "count": 5023344, "maximum": 7, "minimum": 0, "mean": 1.23223, "stddev": 0.762187, "variance": 0.580929},
+	{"name": "NumberOfReturns", "type": "unsigned", "size": 1, "count": 5023344, "maximum": 7, "minimum": 0, "mean": 1.5083, "stddev": 1.14908, "variance": 1.32038},
+	{"name": "ScanDirectionFlag", "type": "unsigned", "size": 1, "count": 5023344, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
+	{"name": "PointSourceId", "type": "unsigned", "size": 2, "count": 5023344, "maximum": 45225, "minimum": 0, "mean": 488.213, "stddev": 128.534, "variance": 16521},
+	{"name": "Classification", "type": "unsigned", "size": 1, "counts": [ {"value": 24, "count": 26}, {"value": 2, "count": 3597041}, {"value": 20, "count": 434201}, {"value": 41, "count": 182761}, {"value": 58, "count": 7851}, {"value": 1, "count": 801333}, {"value": 18, "count": 91}, {"value": 17, "count": 40}], "count": 5023344, "maximum": 58, "minimum": 1, "mean": 4.90329, "stddev": 8.94336, "variance": 79.9836},
+	{"name": "EdgeOfFlightLine", "type": "unsigned", "size": 1, "count": 5023344, "maximum": 1, "minimum": 0, "mean": 0.000948969, "stddev": 0.0307907, "variance": 0.000948069},
+	{"name": "ScanAngleRank", "type": "float", "size": 4, "count": 5023344, "maximum": 31, "minimum": -29, "mean": 1.83958, "stddev": 11.819, "variance": 139.69},
+	{"name": "UserData", "type": "unsigned", "size": 1, "count": 5023344, "maximum": 162, "minimum": 0, "mean": 4.35648, "stddev": 1.25251, "variance": 1.56878},
+	{"name": "GpsTime", "type": "float", "size": 8, "count": 5023344, "maximum": 2.65111e+08, "minimum": 0, "mean": 2.5505e+08, "stddev": 5.06529e+07, "variance": 2.56572e+15}
+],
+"srs": {
+"wkt": "COMPD_CS[\"ETRS89 / UTM zone 32N + unknown\",PROJCS[\"ETRS89 / UTM zone 32N\",GEOGCS[\"ETRS89\",DATUM[\"European_Terrestrial_Reference_System_1989\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6258\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4258\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",9],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"25832\"]],VERT_CS[\"DHHN2016 height\",VERT_DATUM[\"Deutsches Haupthoehennetz 2016\",2005,AUTHORITY[\"EPSG\",\"1170\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Gravity-related height\",UP],AUTHORITY[\"EPSG\",\"7837\"]]]"
+}
+}
