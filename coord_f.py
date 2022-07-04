@@ -1,5 +1,5 @@
 import utm
-import geopy
+#import geopy
 
 def utm_to_lat_long(x, y, section=32):
     """_summary_
