@@ -34,5 +34,5 @@ def fetch (x1, y1, x2, y2, size=5000):
     img = np.array(img)
     return img
 
-#fetch()
+#fetch(5.72499, 50.1506, 9.53154, 52.602)
     
