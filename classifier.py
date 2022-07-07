@@ -8,6 +8,7 @@ import os
 import requests
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
+from shapely.affinity import scale
 #import networkx as nx
 from tqdm import tqdm
 import xml.dom.pulldom as pulldom
@@ -65,6 +66,7 @@ def read_buildings_nrw(file="3dm_32_334_5727_1_nw.laz", shapefile_folder="shapes
                 
                 poly = get_polygon(values)
                 if poly is not None:
+                    poly = scale(poly, xfact=1.01,yfact=1.01)
                     polygons.append(poly)
     print("finish")
     return polygons
@@ -190,6 +192,6 @@ def get_polygon(points):
         return None
     return Polygon(point_list)
 
-#polygons = read_buildings_nrw("3dm_32_334_5727_1_nw.laz")
+#polygons = read_buildings_nrw("3dm_32_326_5727_1_nw.laz")
 
-#map_points("cleaned/3dm_32_334_5727_1_nw.laz", polygons)
+#map_points("lidar-files/1original/Wesel/3dm_32_326_5727_1_nw.laz", None, "test")

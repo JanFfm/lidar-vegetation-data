@@ -34,6 +34,6 @@ def fetch (x1, y1, x2, y2, size=5000):
     img = np.array(img)
     return img
 
-
+#not 50  5 9 52
 fetch( 50.1506,5.72499, 9.53154, 52.602)
     

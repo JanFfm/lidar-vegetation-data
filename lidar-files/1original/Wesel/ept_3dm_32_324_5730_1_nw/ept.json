@@ -15,7 +15,7 @@
 	{"name": "NumberOfReturns", "type": "unsigned", "size": 1, "count": 4426138, "maximum": 7, "minimum": 0, "mean": 1.18082, "stddev": 0.731076, "variance": 0.534473},
 	{"name": "ScanDirectionFlag", "type": "unsigned", "size": 1, "count": 4426138, "maximum": 0, "minimum": 0, "mean": 0, "stddev": 0, "variance": 0},
 	{"name": "PointSourceId", "type": "unsigned", "size": 2, "count": 4426138, "maximum": 541, "minimum": 0, "mean": 520.833, "stddev": 50.4497, "variance": 2545.17},
-	{"name": "Classification", "type": "unsigned", "size": 1, "counts": [ {"value": 2, "count": 3839447}, {"value": 41, "count": 6906}, {"value": 20, "count": 307027}, {"value": 1, "count": 238606}, {"value": 58, "count": 34107}, {"value": 18, "count": 45}], "count": 4426138, "maximum": 58, "minimum": 1, "mean": 3.68723, "stddev": 6.79877, "variance": 46.2232},
+	{"name": "Classification", "type": "unsigned", "size": 1, "counts": [ {"value": 41, "count": 6906}, {"value": 20, "count": 307027}, {"value": 2, "count": 3839447}, {"value": 1, "count": 238606}, {"value": 58, "count": 34107}, {"value": 18, "count": 45}], "count": 4426138, "maximum": 58, "minimum": 1, "mean": 3.68723, "stddev": 6.79877, "variance": 46.2232},
 	{"name": "EdgeOfFlightLine", "type": "unsigned", "size": 1, "count": 4426138, "maximum": 1, "minimum": 0, "mean": 0.000229094, "stddev": 0.0151341, "variance": 0.000229041},
 	{"name": "ScanAngleRank", "type": "float", "size": 4, "count": 4426138, "maximum": 25, "minimum": -30, "mean": -0.0202707, "stddev": 10.1845, "variance": 103.723},
 	{"name": "UserData", "type": "unsigned", "size": 1, "count": 4426138, "maximum": 20, "minimum": 0, "mean": 4.15385, "stddev": 0.720935, "variance": 0.519747},
