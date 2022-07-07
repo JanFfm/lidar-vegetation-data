@@ -140,10 +140,10 @@ def k_means( labels, points_to_cluster):
 
     plot_cluster(points_to_cluster, kmeans_color_map)
 
-def k_means_no_dbscan( centroids, points_to_cluster):        
+def k_means_no_dbscan( centroids, points_to_cluster, iterations):        
     print("starting k-means:")
     centroids = np.array(centroids)
-    kmeans = KMeans(n_clusters=len(centroids) , max_iter=1,init=centroids, n_init=1, tol=0.01).fit(points_to_cluster)
+    kmeans = KMeans(n_clusters=len(centroids) , max_iter=iterations,init=centroids, n_init=1, tol=0.01).fit(points_to_cluster)
     print("finish!")
     kmeans_labels = kmeans.labels_
     kmeans_label_number = kmeans_labels.max() +1 
