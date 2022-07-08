@@ -140,21 +140,24 @@ def k_means( labels, points_to_cluster):
 
     plot_cluster(points_to_cluster, kmeans_color_map)
 
-def k_means_no_dbscan( centroids, points_to_cluster, iterations):        
+def k_means_no_dbscan( centroids, points_to_cluster, iterations, plot=False):        
     print("starting k-means:")
     centroids = np.array(centroids)
     kmeans = KMeans(n_clusters=len(centroids) , max_iter=iterations,init=centroids, n_init=1, tol=0.01).fit(points_to_cluster)
     print("finish!")
-    kmeans_labels = kmeans.labels_
-    kmeans_label_number = kmeans_labels.max() +1 
-    kmeans_label_color =  np.array([[random.randint(0,255), random.randint(0,255), random.randint(0,255)] for i in tqdm(range(kmeans_label_number))]) / 255
-    print("label_colors", kmeans_label_color.shape)
-    kmeans_color_map = np.array([[kmeans_label_color[kmeans_labels[i]][0], kmeans_label_color[kmeans_labels[i]][1],kmeans_label_color[kmeans_labels[i]][2]] for i in tqdm(range(len(points_to_cluster)))])
-    #for i in tqdm(range(len(points_to_cluster))):
-    #    if points_to_cluster[i] in centroids:
-    #        kmeans_color_map[i] = [0,0,0]
-        
-    plot_cluster(points_to_cluster, kmeans_color_map)
+    if plot:
+        kmeans_labels = kmeans.labels_
+        kmeans_label_number = kmeans_labels.max() +1 
+        kmeans_label_color =  np.array([[random.randint(0,255), random.randint(0,255), random.randint(0,255)] for i in tqdm(range(kmeans_label_number))]) / 255
+        print("label_colors", kmeans_label_color.shape)
+        kmeans_color_map = np.array([[kmeans_label_color[kmeans_labels[i]][0], kmeans_label_color[kmeans_labels[i]][1],kmeans_label_color[kmeans_labels[i]][2]] for i in tqdm(range(len(points_to_cluster)))])
+        #for i in tqdm(range(len(points_to_cluster))):
+        #    if points_to_cluster[i] in centroids:
+        #        kmeans_color_map[i] = [0,0,0]
+            
+        plot_cluster(points_to_cluster, kmeans_color_map)
+    return kmeans
+    
 
 def plot_cluster(points, colors):
     geom = o3d.geometry.PointCloud()

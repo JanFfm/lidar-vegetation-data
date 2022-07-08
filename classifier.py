@@ -65,8 +65,8 @@ def read_buildings_nrw(file="3dm_32_334_5727_1_nw.laz", shapefile_folder="shapes
                 #print(dimension, values)
                 
                 poly = get_polygon(values)
-                if poly is not None:
-                    poly = scale(poly, xfact=1.25,yfact=1.25)
+                if poly is not None:                    
+                    poly = scale(poly, xfact=1.1,yfact=1.1)
                     polygons.append(poly)
     print(len(polygons)," buildings found")
     print("finish")
@@ -195,4 +195,4 @@ def get_polygon(points):
 
 polygons = read_buildings_nrw("3dm_32_330_5723_1_nw.las")
 
-map_points("lidar-files/test/3dm_32_330_5723_1_nw.las", polygons, "test_2")
+map_points("lidar-files/2cleaned/Wesel/3dm_32_330_5723_1_nw.las", polygons, "test_2scale")
