@@ -105,7 +105,7 @@ def merge_class_with_labels(points, labels, inices, classifications):
     print("painting clusters:")
     for j in tqdm(range(len(indices))):
         colors[indices[j]] = color_map[j]    
-    return color_map  
+    return colors  
     
 
 
@@ -143,7 +143,7 @@ def merge_colors_with_labels(points, labels, inices, rgb):
     colors = np.array([r, g, b]).transpose((1, 0))
     for j in tqdm(range(len(indices))):
             colors[indices[j]] = color_map[j]    
-    return color_map  
+    return colors  
     
     
 
