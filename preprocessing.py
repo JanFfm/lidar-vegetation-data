@@ -77,7 +77,7 @@ def find(city_code, folder):
     db.execute(w_request)
     db.commit()
         
-def preprocess(city_code, update_db=False):
+def preprocess(city_code, update_db=False, classify=True):
     
     folders = all_folders[city_code - 1]
     if update_db:
@@ -154,13 +154,13 @@ def preprocess(city_code, update_db=False):
         else:
             print(folders[2] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las allready exists")     
         counter -= 1
-        print(counter, " trees to clean left from ",len(files_with_trees))
+        print(counter, " trees to classify left from ",len(files_with_trees))
     
-
-    for file in Path(folders[2]).glob(extension):
-        file_name = str(file).split("/")[-1].split("\\")[-1] 
-        command = '"'+ str(lasttols_path) + '/lasheight -i "' + str(file) + '" -ignore_class 2 -ignore_class 6 -ignore_class 7 -ignore_class 8 -ignore_class 9 -ignore_class 10 -ignore_class 11 -ignore_class 12 -ignore_class 13 -ignore_class 14 -ignore_class 15 -ignore_class 16 -ignore_class 17 -classify_between 0.0 0.5 3 -classify_between 0.5 2 4 -classify_between 2 70.0 5 -classify_above 70.0 5 -o "' +str(folders[3]) +'/'+ str(file_name) + '"'
-        os.system(command)    
+    if classify:
+        for file in Path(folders[2]).glob(extension):
+            file_name = str(file).split("/")[-1].split("\\")[-1] 
+            command = '"'+ str(lasttols_path) + '/lasheight -i "' + str(file) + '" -ignore_class 2 -ignore_class 6 -ignore_class 7 -ignore_class 8 -ignore_class 9 -ignore_class 10 -ignore_class 11 -ignore_class 12 -ignore_class 13 -ignore_class 14 -ignore_class 15 -ignore_class 16 -ignore_class 17 -classify_between 0.0 0.5 3 -classify_between 0.5 2 4 -classify_between 2 70.0 5 -classify_above 70.0 5 -o "' +str(folders[3]) +'/'+ str(file_name) + '"'
+            os.system(command)    
     
     extension = '*.las' 
     for file in Path(folders[3]).glob(extension):  
@@ -172,5 +172,6 @@ def preprocess(city_code, update_db=False):
 #extension = '*.las' 
 #for file in Path(all_folders[3]).glob(extension):   
 #    cluster_dbscan.cluster(file)
-preprocess(city_code=1, update_db= True)
+preprocess(city_code=3, update_db= False, classify=False)
+#preprocess(city_code=1, update_db= False, classify=True)
 
