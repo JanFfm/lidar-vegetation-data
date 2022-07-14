@@ -2,7 +2,7 @@
 #from  whitebox.whitebox_tools import WhiteboxTools
 
 import laspy
-import plot_las
+import visualize
 import os
 #import shapefile   #das wär eher für OsM
 import requests
@@ -193,6 +193,6 @@ def get_polygon(points):
         return None
     return Polygon(point_list)
 
-polygons = read_buildings_nrw("3dm_32_330_5723_1_nw.las")
+#polygons = read_buildings_nrw("3dm_32_330_5723_1_nw.las")
 
-map_points("lidar-files/2cleaned/Wesel/3dm_32_330_5723_1_nw.las", polygons, "test_2scale")
+#m#ap_points("lidar-files/2cleaned/Wesel/3dm_32_330_5723_1_nw.las", polygons, "test_2scale")

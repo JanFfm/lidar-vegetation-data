@@ -5,6 +5,7 @@ import db_settings
 import pyexasol
 import tqdm
 import geojson 
+import re
 import coord_f
 import geopandas as gpd
 from shapely.geometry import Point
@@ -92,7 +93,7 @@ def alle_gattungen(min_size=2):
     print(alle.shape)
     return alle
 def check_gattung_in_db(gattungs_list):
-    gattungen_in_db =numpy.array(db.export_to_pandas("""SELECT * FROM biologie.gattungen  ORDER BY id""")['WISS_NAME'])
+    gattungen_in_db =numpy.array(db.export_to_pandas("""SELECT * FROM lidar_proj.gattungen  ORDER BY id""")['LAT_NAME'])
     print(gattungen_in_db)
     not_in_db =numpy.empty(0)
     in_db =numpy.empty(0)
@@ -111,7 +112,7 @@ def read_koeln_kataster():
     kataster = pandas.read_csv(kataster_koeln, sep=';', encoding ='utf-8')
     #kataster = kataster[kataster.X_Koordina,kataster.Y_Koordina, kataster.Gattung, 1]
     
-    w_request = """INSERT INTO baeume.baeume (x,y,gattung, stadt) VALUES"""
+    w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
     gattungen = {
     }
     counter = 0
@@ -122,11 +123,12 @@ def read_koeln_kataster():
 
         y = row['Y_Koordina']
 
-        gattung= str(row['Gattung']).lower().strip()
+        gattung= str(row['Gattung']).lower()
+        gattung = re.sub(r"[\n\t\s]*", "", gattung)
         if gattung in gattungen:
             gattungs_id = gattungen[gattung]
         else: 
-            request = """SELECT gattungen.id FROM biologie.gattungen WHERE LOWER(TRIM(gattungen.wiss_name))=\'""" + gattung + """\'"""
+            request = """SELECT gattungen.id FROM lidar_proj.gattungen WHERE LOWER(TRIM(gattungen.lat_name))=\'""" + gattung + """\'"""
             #print(request)
             gattungs_id =db.export_to_pandas(request)
             try: 
@@ -136,10 +138,10 @@ def read_koeln_kataster():
             #print(gattungs_id)
             except:
                 print("search typo " , gattung)
-                request = """SELECT gattung FROM biologie.typos_gattungen WHERE LOWER(TRIM(typo))=\'""" + gattung + """\'"""
+                request = """SELECT ID_GATTUNG FROM lidar_proj.typos_gattungen WHERE LOWER(TRIM(typo))=\'""" + gattung + """\'"""
                 gattungs_id =db.export_to_pandas(request)
                 try:
-                    gattungs_id = gattungs_id['ID'][0]
+                    gattungs_id = gattungs_id['ID_GATTUNG'][0]
                 except:
                     print("cant find ", gattung)
                     gattungs_id = None
@@ -153,16 +155,16 @@ def read_koeln_kataster():
 
                 #except:
                 #    print(x,y, "doppelung -> delete!")
-                #    request ="""DELETE FROM baeume.baeume WHERE x=""" +str(x)+"""and y=""" + str(y)
+                #    request ="""DELETE FROM lidar_proj.trees WHERE x=""" +str(x)+"""and y=""" + str(y)
                 #    db_trees.execute(request)
                 counter += 1
-                if counter == 1000:
+                if counter == 500:
                     counter = 0
                     w_request = w_request[:-1]
                     db.execute(w_request)
                     db.commit()
                     print("commit")
-                    w_request = """INSERT INTO baeume.baeume (x,y,gattung, stadt) VALUES"""
+                    w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
 
     w_request = w_request[:-1]
     print(w_request)
@@ -175,17 +177,18 @@ def read_koeln_kataster():
 def read_kataster_wesel():
     with open(kataster_wesel_json) as kataster_file:
         gj = geojson.load(kataster_file)
-    w_request = """INSERT INTO baeume.baeume (x,y,gattung, stadt) VALUES"""
+    w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
     gattungen = {
     }
     counter = 0
     for tree in gj['features']:
         x, y = tree['geometry']['coordinates']
-        gattung =  str(tree['properties']['GATTUNG']).lower().strip()
+        gattung =  str(tree['properties']['GATTUNG']).lower()
+        gattung = re.sub(r"[\n\t\s]*", "", gattung)
         if gattung in gattungen:
                 gattungs_id = gattungen[gattung]
         else: 
-            request = """SELECT gattungen.id FROM biologie.gattungen WHERE LOWER(TRIM(gattungen.wiss_name))=\'""" + gattung + """\'"""
+            request = """SELECT gattungen.id FROM lidar_proj.gattungen WHERE LOWER(TRIM(gattungen.lat_name))=\'""" + gattung + """\'"""
             #print(request)
             gattungs_id =db.export_to_pandas(request)
             try: 
@@ -194,11 +197,12 @@ def read_kataster_wesel():
             
             #print(gattungs_id)
             except:
-                print("search typo " , gattung)
-                request = """SELECT gattung FROM biologie.typos_gattungen WHERE LOWER(TRIM(typo))=\'""" + gattung + """\'"""
+                print("search typo" , gattung,".")
+                request = """SELECT ID_GATTUNG FROM lidar_proj.typos_gattungen WHERE LOWER(TRIM(typo))=\'""" + gattung + """\'"""
+                print(request)
                 gattungs_id =db.export_to_pandas(request)
                 try:
-                    gattungs_id = gattungs_id['ID'][0]
+                   gattungs_id = gattungs_id['ID_GATTUNG'][0]
                 except:
                     print("cant find '", gattung, "'")
                     gattungs_id = None
@@ -213,16 +217,16 @@ def read_kataster_wesel():
 
                 #except:
                 #    print(x,y, "doppelung -> delete!")
-                #    request ="""DELETE FROM baeume.baeume WHERE x=""" +str(x)+"""and y=""" + str(y)
+                #    request ="""DELETE FROM lidar_proj.trees WHERE x=""" +str(x)+"""and y=""" + str(y)
                 #    db_trees.execute(request)
                 counter += 1
-                if counter == 1000:
+                if counter == 500:
                     counter = 0
                     w_request = w_request[:-1]
                     db.execute(w_request)
                     db.commit()
                     print("commit")
-                    w_request = """INSERT INTO baeume.baeume (x,y,gattung, stadt) VALUES"""
+                    w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
 
     w_request = w_request[:-1]
     print(w_request)
@@ -232,11 +236,11 @@ def read_kataster_wesel():
     db.commit()
  
 def compare_kataster_lidar_mapping(city_code=3):
-    request = """SELECT * FROM BAEUME.BAEUME WHERE STADT=""" + str(city_code)
-    request = """SELECT * FROM BAEUME.BAEUME WHERE STADT=""" + str(city_code)
+    #request = """SELECT * FROM lidar_proj.trees WHERE city=""" + str(city_code)
+    request = """SELECT * FROM lidar_proj.trees WHERE city=""" + str(city_code)
 
     trees =db.export_to_pandas(request)
-    request = """SELECT * FROM lidar.lidar_files WHERE STADT=""" + str(city_code)
+    request = """SELECT * FROM lidar.lidar_files WHERE city=""" + str(city_code)
     files =db.export_to_pandas(request)
 
 
@@ -258,10 +262,10 @@ def compare_kataster_lidar_mapping(city_code=3):
             
         
 
-compare_kataster_lidar_mapping()
+#compare_kataster_lidar_mapping()
 
     
         
-#read_koeln_kataster()
 #read_kataster_wesel()
     
+read_koeln_kataster()
