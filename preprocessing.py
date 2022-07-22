@@ -1,5 +1,3 @@
-from doctest import ELLIPSIS_MARKER
-from urllib import request
 import las_cleaner
 import classifier
 #import cluster_dbscan
@@ -51,6 +49,7 @@ all_folders = [folders_köln, folders_gelsenkirchen, folders_wesel]
 crs_position = "EPSG:25832"
 
 def find(city_code, folder):
+    print(folder)
     """
     save lidar edges with city code to db
     to match will tree entrys later
@@ -132,7 +131,7 @@ def preprocess(city_code, update_db=False, classify=True):
     extension = '*.laz' 
     counter = len(files_with_trees)
     print(counter, " trees to clean")
-    """
+    
     for file in Path(folders[0]).glob(extension):         
         if str(file).split("/")[-1].split("\\")[-1].split('.')[0] in files_with_trees:     
             if not exists(folders[1] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las"):
@@ -157,7 +156,7 @@ def preprocess(city_code, update_db=False, classify=True):
             print(folders[2] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las allready exists")     
         counter -= 1
         print(counter, " trees to classify left from ",len(files_with_trees))
-    """
+    
     if classify:
         for file in Path(folders[2]).glob(extension):
             file_name = str(file).split("/")[-1].split("\\")[-1] 
@@ -165,8 +164,8 @@ def preprocess(city_code, update_db=False, classify=True):
             os.system(command)    
     
     extension = '*.las' 
-    for file in Path(folders[3]).glob(extension):  
-        cluster_dbscan.cluster(file, 1,2, city_code)
+    #for file in Path(folders[3]).glob(extension):  
+    #   cluster_dbscan.cluster(file, 1,2, city_code)
     
     
         

@@ -72,7 +72,7 @@ def map_pixels(las, img, nir_img, cir_img):
         print("finish!")
         print("time needed: ", datetime.now() - start_time)
         return las
-       
+"""       
 extension = '*.las' 
 folder ='lidar-files/4categorized/Wesel'
 print("Colorizing ", folder)
@@ -85,5 +85,5 @@ print("Colorizing ", folder)
 for file in tqdm(Path(folder).glob(extension)):
     colorize(file,save_path="D://colorized_las/Köln")
 
-
+"""
 

@@ -25,6 +25,7 @@ import pandas
 from datetime import datetime
 from pathlib import Path
 import warnings
+import random
 
 def save(id,tree_id, gattung_id, save_path_id, algo_id):   
     req = """ ("""+str(id) + """, """+str(tree_id)+""", """+str(gattung_id)+""", """+str(save_path_id)+""", """+str(algo_id)+"""),"""
@@ -335,12 +336,69 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
             print(csv_save_path, str(file) ,"...")    
             print("") 
          
+def cluster_las(las):
+    warnings.filterwarnings("ignore")
+    start_time = datetime.now()
+    print("time: ", start_time)    
+   
+    #x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
+
+    print("selecting points to cluster by classification")
+    p_t_c= numpy.array([las.points['x'], las.points['y'], las.points['z']]).transpose()
+    points_to_cluster = p_t_c[las.points['classification'] == 5]
+    indices = numpy.array([i for i in range(len(las.points['x']))])
+    indices = indices[las.points['classification'] == 5]
+
+    #colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
+    #colors = colors[las.points['classification'] == 5]
+
+        #indices_of_cluster_points = numpy.array([i for i in tqdm(range(length)) if (las.points['classification'][i] in classes_to_cluster)]) 
+    points_to_cluster2d = points_to_cluster[:,:2]
+    print("clustering")
+    cluster = DBSCAN(eps=0.6, min_samples=5).fit(points_to_cluster2d)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
+    labels = cluster.labels_
+    label_colors =  numpy.array([[random.randint(0,255), random.randint(0,255), random.randint(0,255)] for i in tqdm(range(len(labels)))])
+
+    print("building dictionary:")
+    cluster_dict = {}
+    color_dict = {}
+    indices_dict = {
+        
+    }
+    for i in tqdm(numpy.unique(labels)):
+        if i >= 0:
+            cluster_dict[i] = points_to_cluster[labels == int(i)]
+            color_dict[i] = label_colors[int(i)]  
+            indices_dict[i] =indices[labels == int(i)]  
+
+    return cluster_dict, color_dict, indices_dict
+
+    #normalized_trees = {}
+    
+    """
+    print("normalizing clusters")
+    for i, row in tqdm(intersections2.iterrows()):
+        points = numpy.array(cluster_dict[row.HULL_DICT_KEY])
+        x , y, z = points.transpose()
+        x = numpy.array(x)
+        x = x - numpy.min(x)
+        y = numpy.array(y)
+        y = y - numpy.min(y)
+        z = numpy.array(z)
+        z = z - numpy.min(z)
+        points = numpy.array([x,y,z]).transpose()
+        points = points/ numpy.max(points)   
+        normalized_trees[row.HULL_DICT_KEY] = points
+    """
+  
+   
 
         
+
         
 
 
-
+"""
 f ="lidar-files/4categorized/Wesel/3dm_32_335_5725_1_nw.las"
 extension = '*.las' 
 
@@ -351,3 +409,4 @@ for file in Path("D:/colorized_las/Köln").glob(extension):
 for file in Path("D:/colorized_las/Wesel").glob(extension):    
         cluster(file, 3,4, 3)
         #print("############## failure")
+"""

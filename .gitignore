@@ -3,3 +3,6 @@
 *.dbf
 *.csv
 db_settings.py
+*.csv
+*.csv
+geopandasgeopandas_inner_intersection.csv

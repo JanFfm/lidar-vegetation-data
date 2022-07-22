@@ -14,7 +14,7 @@ def get_classification_color(class_number):
             7:[255,20,147], # noise deeppink
             8:[255,192,203], # reserved pink
             9:[0,0,255], #water blue
-            10:[138,43,226], #rail blueviolet
+            10:[255,20,147], #rail pink
             11:[112,128,144], #road   slategrey
             12:[255,192,203], #reserved pink
             13:[255,255,0], #wire Yellow

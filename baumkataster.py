@@ -72,8 +72,8 @@ def read_kataster_gelsenkrichen():
                 if counter == 500:
                     counter = 0
                     w_request = w_request[:-1]
-                    #db.execute(w_request)
-                    #db.commit()
+                    db.execute(w_request)
+                    db.commit()
                     print("commit")
                     w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
 
@@ -81,8 +81,8 @@ def read_kataster_gelsenkrichen():
     print(w_request)
     #db_trees = db_settings.db("baeume")
 
-    #db.execute(w_request)
-    #db.commit()
+    db.execute(w_request)
+    db.commit()
 
 
 
