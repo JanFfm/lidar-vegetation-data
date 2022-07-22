@@ -22,18 +22,16 @@ import visualize
 import db_settings
 import geopandas
 import pandas
-import create_new_las
 from datetime import datetime
 from pathlib import Path
 import warnings
 
-import csv
 def save(id,tree_id, gattung_id, save_path_id, algo_id):   
     req = """ ("""+str(id) + """, """+str(tree_id)+""", """+str(gattung_id)+""", """+str(save_path_id)+""", """+str(algo_id)+"""),"""
     #x, y, z = numpy.array(points).transpose()
     #las = create_new_las.build_las(las_scale_factor, x,y,z, header=header)     
     return req #, las
-def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = [5], limit=3800000):
+def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = [5], limit=3500000):
     warnings.filterwarnings("ignore")
     print("starting with ", file)
     start_time = datetime.now()
@@ -90,7 +88,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
 
             print("read las file...")
 
-            algo_id = 1 #references dbsvan
+            algo_id = 3 #references dbsvan_color
             las = laspy.read(file)
             las_points_x = numpy.array(las.points['x']) 
             las_points_y = numpy.array(las.points['y'])
@@ -101,7 +99,10 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
             length = len(las.points['x'])    
             
             print("selecting points to cluster by classification")
-            points_to_cluster = numpy.array([[las.points['x'][i], las.points['y'][i], las.points['z'][i]] for i in tqdm(range(length)) if (las.points['classification'][i] in classes_to_cluster)]) 
+            p_t_c= numpy.array([las.points['x'], las.points['y'], las.points['z']]).transpose()
+            points_to_cluster = p_t_c[las.points['classification'] == 5]
+            colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
+            colors = colors[las.points['classification'] == 5]
             print("selecting idices of this poibts")
             if len(points_to_cluster) < limit: 
                 #indices_of_cluster_points = numpy.array([i for i in tqdm(range(length)) if (las.points['classification'][i] in classes_to_cluster)]) 
@@ -111,13 +112,12 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 labels = cluster.labels_
                 print("building dictionary:")
                 cluster_dict = {}
-                for i in range(max(labels) +1):
+                color_dict = {}
+                for i in tqdm(numpy.unique(labels)):
                     if i >= 0:
-                        cluster_dict[i] = []
-                for i, p in tqdm(zip(labels, points_to_cluster)):
-                    #drop not clustered points with label -1:
-                    if i >= 0:
-                        cluster_dict[i] =  cluster_dict[i] + [p]
+                        cluster_dict[i] = points_to_cluster[labels == int(i)]
+                        color_dict[i] = colors[labels == int(i)]
+             
                 #x/y-convex hull
                 hull_dict = {}
                 print("calculating convex hulls:")
@@ -164,6 +164,11 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 xs = []
                 ys = []
                 zs = []
+                
+                rs = [] 
+                gs = []
+                bs = []
+                nirs = []
 
                 for i, row in intersections.iterrows():
                         cluster_key= row.HULL_DICT_KEY # index right war das vorher!
@@ -185,11 +190,14 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                         tree_id =(int(row.ID))
                                         gattung_id =(int(row.ID_GATTUNG))
 
-                                        req = save(max_id, tree_id, gattung_id, save_doubles_id, algo_id)
+                                        req = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """ + str(save(max_id, tree_id, gattung_id, save_doubles_id, algo_id))
+                                        req= req[:-1]
+                                        print(req)
                                         #print("len cluster_dict:", len(cluster_dict[cluster_key]), "len points", len(c_las.x) )
+                                        print("db execute at forest")
 
-                                        db.execute(req) 
-                                        db.commit()
+                                        #db.execute(req) 
+                                        #db.commit()
                                         save_path = os.path.join(save_doubles_to, str(max_id) + ".las")
                                         print("saving large cluster to ", save_path)
                                         #c_las.write(save_path)
@@ -201,6 +209,11 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                                 xs.append(n_point[0])
                                                 ys.append(n_point[1])
                                                 zs.append(n_point[2])
+                                        for c in  color_dict[cluster_key]:    
+                                                rs.append(c[0])
+                                                gs.append(c[1])
+                                                bs.append(c[2])
+                                                nirs.append(c[3])
                     
                                         max_id += 1                            
                 
@@ -210,7 +223,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                 visited.append(row['index_right'])
                                 dropped += len(doubles) - 1
                 if (len(c_id) > 0):
-                    csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs})                  
+                    csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs, "red": rs, "green":gs, "blue": bs, "nir": nirs})                  
                     csv_frame.to_csv(csv_save_path_doubles,mode='w')               
                 print(len(intersections2), " unambiguously clusters found")
                                 
@@ -238,12 +251,18 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 xs = []
                 ys = []
                 zs = []
+                
+                rs = [] 
+                gs = []
+                bs = []
+                nirs = []
                 print("saving")
-                req  = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES"""
+                req  = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """
                 for k in tqdm(normalized_trees.keys()):
                     counter +=1
                     max_id += 1        
-                    normalized_points = normalized_trees[k]     
+                    normalized_points = normalized_trees[k]
+                    colorized_points = color_dict[k]     
                     row_df = intersections2.loc[intersections2['HULL_DICT_KEY'] == k]
                     try:
                         row = row_df.iloc[0]
@@ -266,23 +285,32 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                         xs.append(n_point[0])
                         ys.append(n_point[1])
                         zs.append(n_point[2])
+                    for c in colorized_points:
+                        rs.append(c[0])
+                        gs.append(c[1])
+                        bs.append(c[2])
+                        nirs.append(c[3])
                     
 
 
                     
                     if counter % 100 == 0:
+                        print("db execute at % 100")
+
                         req= req[:-1]
                         print(req)
-                        db.execute(req)
+                        #db.execute(req)
                         
                         print("commit")
-                        db.commit()
+                        #db.commit()
                         req  = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """
-
-                req= req[:-1]
-                db.execute(req)
-                db.commit()
-                csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs})
+                if (len(req) > 90):
+                    print("last commit")
+                    #req= req[:-1]
+                    #db.execute(req)
+                    #db.commit()
+                    
+                csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs, "red": rs, "green":gs, "blue": bs, "nir": nirs})
 
                 print("save to ", csv_save_path)
 
@@ -291,13 +319,21 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 print("finish!")
                 print("time needed: ", datetime.now() - start_time)
             else:
+                print("") 
+
                 print("high vegetation points over limit ",limit)
                 with open('skipped.txt', 'a+') as f:
                     f.write(str(file))   
+            print("") 
+            print("") 
+
 
                 
         else:
-            print(csv_save_path, "allready exisists. skipping", str(file) ,"...")     
+            print("")
+            print("allready exisists. skipping")
+            print(csv_save_path, str(file) ,"...")    
+            print("") 
          
 
         
@@ -306,7 +342,12 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
 
 
 f ="lidar-files/4categorized/Wesel/3dm_32_335_5725_1_nw.las"
-#extension = '*.las' 
-#for file in Path("lidar-files/4categorized/Wesel/").glob(extension):    
-#        cluster(file, 100,101, 3)
+extension = '*.las' 
+
+for file in Path("D:/colorized_las/Köln").glob(extension):    
+        cluster(file, 3,4, 1)
+        #print("############## failure")
+
+for file in Path("D:/colorized_las/Wesel").glob(extension):    
+        cluster(file, 3,4, 3)
         #print("############## failure")

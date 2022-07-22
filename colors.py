@@ -25,3 +25,4 @@ def get_classification_color(class_number):
             18:[255,20,147], #high noise deeppink            
         }
     return np.array(classification_colors[int(class_number)]) / 255
+

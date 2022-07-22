@@ -36,50 +36,7 @@ class LidarFileData():
         self.y_min =  np.array(self.lidar_data.points['y']).min()
         
     
-    def load_and_save_colors(self):
-        self.get_color_map()
-        self.map_pixels()
-
-    def get_color_map(self):
-        max_coords =  coord_f.utm_to_lat_long(self.x_max, self.y_max)
-        min_coords = coord_f.utm_to_lat_long(self.x_min, self.y_min)    
-   
-        self.map_image = fetch_sat_data.fetch(min_coords[0], min_coords[1], max_coords[0], max_coords[1])
-    def map_pixels(self):
-        x_factor = ((self.x_max - self.x_min)* 10) / (self.map_image.shape[1]- 1) 
-        print(self.x_max, self.x_min)
-        print(self.map_image.shape)
-        y_factor = ((self.y_max - self.y_min)* 10) / (self.map_image.shape[0] -1) 
-        print (x_factor, y_factor)
-        print(((self.y_max - self.y_min)* 10) /y_factor)
-        
-        #print(list(self.lidar_data.point_format))
-
-        for i in tqdm(range(len(self.lidar_data.points))):
-            x = (self.lidar_data.points['x'][i]  - self.x_min) *10
-            y = (self.lidar_data.points['y'][i] - self.y_min) *10
-            
-            img_x = int(round((x /x_factor),0)) 
-            img_y = (self.map_image.shape[0] -1)  - int(round((y /y_factor),0) )
-            
-            ### map rgb values:
-            self.lidar_data.points['red'][i] =self.map_image[img_y][img_x][0]
-            self.lidar_data.points['green'][i] = self.map_image[img_y][img_x][1]  
-            self.lidar_data.points['blue'][i] =self.map_image[img_y][img_x][2]
-
-    def detect_vegetation(self):
-        #detecting vegetation
-        count = 0
-        for i in tqdm(range(len(self.lidar_data.points))): 
-            if self.lidar_data['classification'][i] <= 1  or self.lidar_data['classification'][i] > 18: #0 never classified, 1: unclassified
-                if self.lidar_data['number_of_returns'][i] > 1:
-                    vari = (self.lidar_data['green'][i]  - self.lidar_data['red'][i] ) / (self.lidar_data['green'][i] + self.lidar_data['red'][i] - self.lidar_data['blue'][i]) 
-                    if vari > 0.5:
-                        self.lidar_data['classification'][i] = 4 # 4 = medium vegetation 
-                        count += 1
-        print(count ," points of veg detected!")
-            
-
+    
 
     def plot_image(self, colormode="combination", reduction=1):
         points = self.lidar_data.points.copy()

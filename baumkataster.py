@@ -15,6 +15,74 @@ kataster_koeln = "baumkataster/Bestand_Einzelbaeume_Koeln_0_repaired.csv"
 kataster_wesel = "baumkataster/Baumkataster.csv"
 kataster_wesel_json = "baumkataster/Baumkataster.geojson"
 db = db_settings.db()
+def read_kataster_gelsenkrichen():
+    kataster = pandas.read_csv(kataster_gelsenkirchen, sep=';', encoding ='utf-8')
+    kataster = kataster[kataster.BAUMART != 'NaN']
+    city_code = 2
+    
+    w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
+    gattungen = {
+    }
+    counter = 0
+    for index, row in tqdm.tqdm(kataster.iterrows()):
+        
+    
+        x = row['X']
+        x =float(x.replace(',', '.'))
+
+        y = row['Y']
+        y =float(y.replace(',', '.'))
+
+
+        gattung= str(row['BAUMART']).lower().split(' ')[0]
+        gattung = re.sub(r"[\n\t\s]*", "", gattung)
+        if gattung in gattungen:
+            gattungs_id = gattungen[gattung]
+        else: 
+            request = """SELECT gattungen.id FROM lidar_proj.gattungen WHERE LOWER(TRIM(gattungen.lat_name))=\'""" + gattung + """\'"""
+            #print(request)
+            gattungs_id =db.export_to_pandas(request)
+            try: 
+                gattungs_id = gattungs_id['ID'][0]
+                
+            
+            #print(gattungs_id)
+            except:
+                print("search typo " , gattung)
+                request = """SELECT ID_GATTUNG FROM lidar_proj.typos_gattungen WHERE LOWER(TRIM(typo))=\'""" + gattung + """\'"""
+                gattungs_id =db.export_to_pandas(request)
+                try:
+                    gattungs_id = gattungs_id['ID_GATTUNG'][0]
+                except:
+                    print("cant find ", gattung)
+                    gattungs_id = None
+            gattungen[gattung] = gattungs_id
+
+        
+        if gattung != 'NaN' and gattungs_id != None:
+                #try:
+                w_request = w_request+ """("""+str(x)+""","""+str(y)+""","""+str(gattungs_id)+""","""+ str(city_code)+"""),"""
+                   
+
+                #except:
+                #    print(x,y, "doppelung -> delete!")
+                #    request ="""DELETE FROM lidar_proj.trees WHERE x=""" +str(x)+"""and y=""" + str(y)
+                #    db_trees.execute(request)
+                counter += 1
+                if counter == 500:
+                    counter = 0
+                    w_request = w_request[:-1]
+                    #db.execute(w_request)
+                    #db.commit()
+                    print("commit")
+                    w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
+
+    w_request = w_request[:-1]
+    print(w_request)
+    #db_trees = db_settings.db("baeume")
+
+    #db.execute(w_request)
+    #db.commit()
 
 
 
@@ -268,4 +336,4 @@ def compare_kataster_lidar_mapping(city_code=3):
         
 #read_kataster_wesel()
     
-read_koeln_kataster()
+read_kataster_gelsenkrichen()

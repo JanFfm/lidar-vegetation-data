@@ -28,14 +28,17 @@ def plot_las_3d(las, color=None):
     #color_map = np.array([color_map, color_map, color_map]).transpose((1, 0))
     if color == None or color == 'rgb':
         color_map = np.array([las.points['red'] /255, las.points['green'] /255, las.points['blue'] /255]).transpose((1, 0))
+    elif color=='nir':
+        color_map = np.array([las.points['nir'] /255, las.points['red'] /255, las.points['blue'] /255]).transpose((1, 0))
+
         
     elif color =="classification":
-        color_map = np.array(las[color])
-        alt_map = np.ones([1, len(color)]) /2
-        print("colr_ap", color_map)
-        print("alt_ap", alt_map)
-        color_map = color_map / color_map.max() # scale to [0 ,.., 1]
-        color_map = np.array([color_map, color_map, color_map]).transpose((1, 0))
+        color_map = np.array(list(map(get_classification_color, las.points[color])))
+        #alt_map = np.ones([1, len(color)]) /2
+        #print("colr_ap", color_map)
+        #print("alt_ap", alt_map)
+       # color_map = color_map / color_map.max() # scale to [0 ,.., 1]
+        #color_map = np.array([color_map, color_map, color_map]).transpose((1, 0))
     
         
     print(color_map)

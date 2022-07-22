@@ -15,7 +15,7 @@ import pandas
 import geopandas
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import cluster_dbscan
 db =db_settings.db(autocommit=False)
 lasttols_path = "C:/Users/janja/Desktop/LAStools/bin"
@@ -39,12 +39,13 @@ buildings_köln = os.path.join(cwd, "lidar-files", "3buildings", "Köln")
 buildings_gelsenkirchen = os.path.join(cwd, "lidar-files", "3buildings", "Gelsenkirchen")
 
 color_köln =  os.path.join(cwd, "lidar-files", "5color", "Köln")
-color_wesel =  os.path.join(cwd, "lidar-files", "5color", "Wese.")
+color_wesel =  os.path.join(cwd, "lidar-files", "5color", "Wesel")
+color_geslenkirchen =  os.path.join(cwd, "lidar-files", "5color", "Gelsenkirchen")
 
 
 
 folders_wesel = [lidar_wesel, clean_wesel, buildings_wesel, cat_wesel, color_wesel]
-folders_gelsenkirchen = []
+folders_gelsenkirchen = [lidar_gelsenkirchen,clean_gelsenkirchen, buildings_gelsenkirchen, color_geslenkirchen ]
 folders_köln = [lidar_köln, clean_köln, buildings_köln, cat_köln, color_köln]
 all_folders = [folders_köln, folders_gelsenkirchen, folders_wesel]
 crs_position = "EPSG:25832"
@@ -85,7 +86,7 @@ def preprocess(city_code, update_db=False, classify=True):
         
         print("db-requests ---")
         #check files listetd to baumkataster:
-        lidar_entrys =db.export_to_pandas("""SELECT * FROM lidar_proj.LIDAR_FILES WHERE CITY_ID=""" + str(city_code) +"""ORDER BY id""")
+        lidar_entrys =db.export_to_pandas("""SELECT * FROM lidar_proj.LIDAR_FILES WHERE CITY_ID=""" + str(city_code) +""" ORDER BY id""")
         trees =db.export_to_pandas("""SELECT * FROM lidar_proj.TREES WHERE CITY_ID=""" + str(city_code)+"""ORDER BY id""")
         #fetching lidar:
         lidar_polygons=[]
@@ -131,6 +132,7 @@ def preprocess(city_code, update_db=False, classify=True):
     extension = '*.laz' 
     counter = len(files_with_trees)
     print(counter, " trees to clean")
+    """
     for file in Path(folders[0]).glob(extension):         
         if str(file).split("/")[-1].split("\\")[-1].split('.')[0] in files_with_trees:     
             if not exists(folders[1] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las"):
@@ -155,7 +157,7 @@ def preprocess(city_code, update_db=False, classify=True):
             print(folders[2] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las allready exists")     
         counter -= 1
         print(counter, " trees to classify left from ",len(files_with_trees))
-    
+    """
     if classify:
         for file in Path(folders[2]).glob(extension):
             file_name = str(file).split("/")[-1].split("\\")[-1] 
@@ -172,6 +174,6 @@ def preprocess(city_code, update_db=False, classify=True):
 #extension = '*.las' 
 #for file in Path(all_folders[3]).glob(extension):   
 #    cluster_dbscan.cluster(file)
-preprocess(city_code=3, update_db= False, classify=False)
+preprocess(city_code=2, update_db= False, classify=True)
 #preprocess(city_code=1, update_db= False, classify=True)
 

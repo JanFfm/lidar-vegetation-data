@@ -138,7 +138,7 @@ def map_points(file, p, save_path):
     
     if not os.path.exists(save_path):
             os.mkdir(save_path)
-    save_path = os.path.join(save_path,file_name)
+    #save_path = os.path.join(save_path,file_name)
     print("save to ", save_path)
     las.write(save_path)
                      

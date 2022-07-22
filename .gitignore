@@ -1,4 +1,5 @@
 *.las
 *.laz
 *.dbf
+*.csv
 db_settings.py
