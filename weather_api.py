@@ -16,6 +16,10 @@ import coord_f
 import laspy
 import numpy
 import check_tree
+import get_class_from_family
+import folium
+from folium import plugins
+from folium.plugins import HeatMap
 
 # read a las file and return all points in numpy array
 def get_points(las_file):
@@ -101,6 +105,32 @@ def main():
     las_points = get_points(lidar_file)
     coordinates = get_coordinates(las_points)
     print(get_danger(coordinates[0], coordinates[1], "Fichte"))
+    coord = coord_f.utm_to_lat_long(351196.0, 5656573.0)
+    print(get_danger(coord[0], coord[1], get_class_from_family.get_class(90)))
+    map_hooray = folium.Map(location=[51.5074, 0.1278],
+        tiles = "Stamen Toner",
+        zoom_start = 12)
+    map_hooray
+
+    local_dict_trees = get_class_from_family.dict_trees
+    for elem in local_dict_trees:
+        coord = coord_f.utm_to_lat_long(local_dict_trees[elem]['X'], local_dict_trees[elem]['Y'])
+        danger_score = get_danger(coord[0], coord[1], get_class_from_family.get_class(local_dict_trees[elem]['ID_GATTUNG']))
+        local_dict_trees[elem]['DANGER_SCORE'] = danger_score
+        del local_dict_trees[elem]['CITY_ID']
+        del local_dict_trees[elem]['ID_GATTUNG']
+        del local_dict_trees[elem]['LIDAR_FILE_ID']
+    print (local_dict_trees)
+
+
+    """
+    #f_map = folium.Map(location=[lat, long], zoom_start=14)
+    for values in cluster_dict.values():
+        center = numpy.array(values).mean(axis=0)
+        lat, long = coord_f.utm_to_lat_long(center[0], center[1])
+        folium.Marker(location=[lat, long],icon=folium.Icon(color="green")).add_to( f_map )
+    """
 
 if __name__ == '__main__':
     main()  
+
