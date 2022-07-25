@@ -20,6 +20,9 @@ import get_class_from_family
 import folium
 from folium import plugins
 from folium.plugins import HeatMap
+import itertools
+import csv
+import pandas as pd
 
 # read a las file and return all points in numpy array
 def get_points(las_file):
@@ -112,7 +115,9 @@ def main():
         zoom_start = 12)
     map_hooray
 
-    local_dict_trees = get_class_from_family.dict_trees
+    n = 1000
+    #out = dict(itertools.islice(test_dict.items(), N)) 
+    local_dict_trees = dict(itertools.islice(get_class_from_family.dict_trees.items(), n))
     for elem in local_dict_trees:
         coord = coord_f.utm_to_lat_long(local_dict_trees[elem]['X'], local_dict_trees[elem]['Y'])
         danger_score = get_danger(coord[0], coord[1], get_class_from_family.get_class(local_dict_trees[elem]['ID_GATTUNG']))
@@ -120,17 +125,10 @@ def main():
         del local_dict_trees[elem]['CITY_ID']
         del local_dict_trees[elem]['ID_GATTUNG']
         del local_dict_trees[elem]['LIDAR_FILE_ID']
-    print (local_dict_trees)
+
+    pd.DataFrame.from_dict(local_dict_trees, orient='index').to_csv('temp.csv')
 
 
-    """
-    #f_map = folium.Map(location=[lat, long], zoom_start=14)
-    for values in cluster_dict.values():
-        center = numpy.array(values).mean(axis=0)
-        lat, long = coord_f.utm_to_lat_long(center[0], center[1])
-        folium.Marker(location=[lat, long],icon=folium.Icon(color="green")).add_to( f_map )
-    """
 
 if __name__ == '__main__':
     main()  
-
