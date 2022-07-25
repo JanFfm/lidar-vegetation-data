@@ -5,8 +5,9 @@ import numpy as np
 import coord_f
 from PIL import Image
 import visualize
+import os
 
-def rails(las_file, size=5000):
+def rails(las_file="demo/3dm_32_335_5728_1_nw.laz", size=5000):
     las = laspy.read(las_file)
     wms_nrw = "https://www.wms.nrw.de/geobasis/wms_nw_inspire-verkehrsnetze_alkis"
     wms = WebMapService(wms_nrw, version='1.3.0',username="")
@@ -30,11 +31,11 @@ def rails(las_file, size=5000):
     #to get um coordinates again:
     x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
 
-    x_factor = ((x_max - x_min)* 10) / (img.shape[1]- 1) 
-    y_factor = ((y_max - y_min)* 10) / (img.shape[0] -1) 
+    x_factor = ((x_max - x_min)) / (img.shape[1]- 1) 
+    y_factor = ((y_max - y_min) / (img.shape[0] -1) )
     print("calculating offset:")
-    x_modi = list(map(lambda x :  (x- x_min)*10, las.points['x']))
-    y_modi = list(map(lambda y :  (y_max - y)*10, las.points['y']))
+    x_modi = list(map(lambda x :  (x- x_min), las.points['x']))
+    y_modi = list(map(lambda y :  (y_max - y), las.points['y'])) # das stimt vielleicht nicht?
     print("calculating coordiantes:")
 
     img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   #int() 
@@ -45,6 +46,8 @@ def rails(las_file, size=5000):
     l, l_num = np.unique(rail, return_counts=True)
     print(dict(zip(l, l_num)))
     las.points['classification'] = np.array(list(map(lambda c, r: r if r==10 and c==2 else c,  las.points['classification'] , rail)))  
-    #visualize.plot_las_3d(las, color='classification')
-    las.write(las_file)
-    
+    visualize.plot_las_3d(las, color='classification')
+    print("saving", las_file)
+    #las_file = str(os.path.join(os.getcwd(), las_file))
+
+    #las.write(las_file)

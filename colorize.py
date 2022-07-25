@@ -30,7 +30,7 @@ def colorize(las_file, save_path="D://colorized_las"):
 
 def get_color_map(las):
         las_points_x = np.array(las.points['x']) 
-        las_points_y = np.array(las.points['y'])
+        las_points_y = np.array(las.points['y'])        
         x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
         max_coords =  coord_f.utm_to_lat_long(x_max, y_max)
         min_coords = coord_f.utm_to_lat_long(x_min, y_min)   
@@ -57,7 +57,7 @@ def map_pixels(las, img, nir_img, cir_img):
         y_modi = list(map(lambda y :  (y_max - y)*10, las.points['y']))
         print("calculating coordiantes:")
 
-        img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   #int() 
+        img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   #int() faktor 10 scheint hier egal zu sein?!
         img_y = list(map(lambda y: int(round((y /y_factor),0)), y_modi)) 
         print("calculating channel red:")
 
@@ -72,7 +72,7 @@ def map_pixels(las, img, nir_img, cir_img):
         print("finish!")
         print("time needed: ", datetime.now() - start_time)
         return las
-"""       
+""" 
 extension = '*.las' 
 folder ='lidar-files/4categorized/Wesel'
 print("Colorizing ", folder)
@@ -82,8 +82,13 @@ for file in tqdm(Path(folder).glob(extension)):
 folder ='lidar-files/4categorized/Köln'
 print("Colorizing ", folder)
 
+"""
+"""
+extension = '*.las' 
+
+folder ='lidar-files/4categorized/Gelsenkirchen'
 for file in tqdm(Path(folder).glob(extension)):
-    colorize(file,save_path="D://colorized_las/Köln")
+    colorize(file,save_path="D://colorized_las/Gelsenkirchen")
 
 """
 

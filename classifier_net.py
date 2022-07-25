@@ -217,7 +217,7 @@ class classifier_network:
 
             #collect metrics:
             accuracy_score = sum(acc_list) /len(acc_list)
-            acc_scores.append(accuracy_score)
+            #acc_scores.append(accuracy_score)
             v_meanloss = v_meanloss / v_counter
             v_losses.append(v_meanloss)            
    
@@ -226,7 +226,7 @@ class classifier_network:
      
             print("accuracy: ", accuracy_score)           
             
-            if (max(acc_scores) == accuracy_score):
+            if (max(max(acc_scores),accuracy_score) == accuracy_score):
                 print("new best accuracay!")
                 acc_test = self.test()
                 acc_scores_test.append(acc_test)
@@ -234,6 +234,8 @@ class classifier_network:
                 if  (max(acc_scores_test) == acc_test):
                     print("newx best acc in testset!")
                     self.save((str(acc_test)+"_in_e_" +str(e)))
+                    acc_scores.append(accuracy_score)
+
         print("best accurarcy score ", str(max(acc_scores_test)))
             
     ###### plot mean losses

@@ -32,7 +32,7 @@ def save(id,tree_id, gattung_id, save_path_id, algo_id):
     #x, y, z = numpy.array(points).transpose()
     #las = create_new_las.build_las(las_scale_factor, x,y,z, header=header)     
     return req #, las
-def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = [5], limit=3500000):
+def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = [5], limit=7000000):
     warnings.filterwarnings("ignore")
     print("starting with ", file)
     start_time = datetime.now()
@@ -89,21 +89,22 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
 
             print("read las file...")
 
-            algo_id = 3 #references dbsvan_color
+            algo_id = 1 #references dbsvan
+            print("read las: ", file)
             las = laspy.read(file)
-            las_points_x = numpy.array(las.points['x']) 
-            las_points_y = numpy.array(las.points['y'])
-            x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
-            x_range = x_max - x_min
-            y_range = y_max - y_min
+            #las_points_x = numpy.array(las.points['x']) 
+            #las_points_y = numpy.array(las.points['y'])
+            #x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
+            #x_range = x_max - x_min
+            #y_range = y_max - y_min
             
-            length = len(las.points['x'])    
+            #ength = len(las.points['x'])    
             
             print("selecting points to cluster by classification")
             p_t_c= numpy.array([las.points['x'], las.points['y'], las.points['z']]).transpose()
             points_to_cluster = p_t_c[las.points['classification'] == 5]
-            colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
-            colors = colors[las.points['classification'] == 5]
+            #colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
+            #colors = colors[las.points['classification'] == 5]
             print("selecting idices of this poibts")
             if len(points_to_cluster) < limit: 
                 #indices_of_cluster_points = numpy.array([i for i in tqdm(range(length)) if (las.points['classification'][i] in classes_to_cluster)]) 
@@ -113,11 +114,11 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 labels = cluster.labels_
                 print("building dictionary:")
                 cluster_dict = {}
-                color_dict = {}
+                #color_dict = {}
                 for i in tqdm(numpy.unique(labels)):
                     if i >= 0:
                         cluster_dict[i] = points_to_cluster[labels == int(i)]
-                        color_dict[i] = colors[labels == int(i)]
+                        #color_dict[i] = colors[labels == int(i)]
              
                 #x/y-convex hull
                 hull_dict = {}
@@ -166,10 +167,10 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 ys = []
                 zs = []
                 
-                rs = [] 
-                gs = []
-                bs = []
-                nirs = []
+                #rs = [] 
+                #gs = []
+                #bs = []
+                #nirs = []
 
                 for i, row in intersections.iterrows():
                         cluster_key= row.HULL_DICT_KEY # index right war das vorher!
@@ -210,11 +211,11 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                                 xs.append(n_point[0])
                                                 ys.append(n_point[1])
                                                 zs.append(n_point[2])
-                                        for c in  color_dict[cluster_key]:    
-                                                rs.append(c[0])
-                                                gs.append(c[1])
-                                                bs.append(c[2])
-                                                nirs.append(c[3])
+                                        #for c in  color_dict[cluster_key]:    
+                                        #        rs.append(c[0])
+                                        #        gs.append(c[1])
+                                        #        bs.append(c[2])
+                                        #        nirs.append(c[3])
                     
                                         max_id += 1                            
                 
@@ -224,7 +225,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                 visited.append(row['index_right'])
                                 dropped += len(doubles) - 1
                 if (len(c_id) > 0):
-                    csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs, "red": rs, "green":gs, "blue": bs, "nir": nirs})                  
+                    csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs})                  #, "red": rs, "green":gs, "blue": bs, "nir": nirs
                     csv_frame.to_csv(csv_save_path_doubles,mode='w')               
                 print(len(intersections2), " unambiguously clusters found")
                                 
@@ -253,17 +254,19 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 ys = []
                 zs = []
                 
-                rs = [] 
-                gs = []
-                bs = []
-                nirs = []
+                #rs = [] 
+                #gs = []
+                #bs = []
+                #nirs = []
                 print("saving")
                 req  = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """
                 for k in tqdm(normalized_trees.keys()):
                     counter +=1
                     max_id += 1        
                     normalized_points = normalized_trees[k]
-                    colorized_points = color_dict[k]     
+                    
+                    #colorized_points = color_dict[k]    
+                     
                     row_df = intersections2.loc[intersections2['HULL_DICT_KEY'] == k]
                     try:
                         row = row_df.iloc[0]
@@ -286,11 +289,11 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                         xs.append(n_point[0])
                         ys.append(n_point[1])
                         zs.append(n_point[2])
-                    for c in colorized_points:
-                        rs.append(c[0])
-                        gs.append(c[1])
-                        bs.append(c[2])
-                        nirs.append(c[3])
+                    #for c in colorized_points:
+                    #    rs.append(c[0])
+                    #    gs.append(c[1])
+                    #    bs.append(c[2])
+                    #    nirs.append(c[3])
                     
 
 
@@ -311,7 +314,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                     #db.execute(req)
                     #db.commit()
                     
-                csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs, "red": rs, "green":gs, "blue": bs, "nir": nirs})
+                csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs}) #, "red": rs, "green":gs, "blue": bs, "nir": nirs
 
                 print("save to ", csv_save_path)
 
@@ -346,8 +349,9 @@ def cluster_las(las):
     print("selecting points to cluster by classification")
     p_t_c= numpy.array([las.points['x'], las.points['y'], las.points['z']]).transpose()
     points_to_cluster = p_t_c[las.points['classification'] == 5]
+
     indices = numpy.array([i for i in range(len(las.points['x']))])
-    indices = indices[las.points['classification'] == 5]
+    indices = indices[las.points['classification'] ==5]
 
     #colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
     #colors = colors[las.points['classification'] == 5]

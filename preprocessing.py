@@ -38,12 +38,12 @@ buildings_gelsenkirchen = os.path.join(cwd, "lidar-files", "3buildings", "Gelsen
 
 color_köln =  os.path.join(cwd, "lidar-files", "5color", "Köln")
 color_wesel =  os.path.join(cwd, "lidar-files", "5color", "Wesel")
-color_geslenkirchen =  os.path.join(cwd, "lidar-files", "5color", "Gelsenkirchen")
+color_gelsenkirchen =  os.path.join(cwd, "lidar-files", "5color", "Gelsenkirchen")
 
 
 
 folders_wesel = [lidar_wesel, clean_wesel, buildings_wesel, cat_wesel, color_wesel]
-folders_gelsenkirchen = [lidar_gelsenkirchen,clean_gelsenkirchen, buildings_gelsenkirchen, color_geslenkirchen ]
+folders_gelsenkirchen = [lidar_gelsenkirchen,clean_gelsenkirchen, buildings_gelsenkirchen, cat_gelsenkirchen ]
 folders_köln = [lidar_köln, clean_köln, buildings_köln, cat_köln, color_köln]
 all_folders = [folders_köln, folders_gelsenkirchen, folders_wesel]
 crs_position = "EPSG:25832"
@@ -78,8 +78,9 @@ def find(city_code, folder):
     db.commit()
         
 def preprocess(city_code, update_db=False, classify=True):
-    
     folders = all_folders[city_code - 1]
+    
+
     if update_db:
         find(city_code=city_code, folder=folders[0])
         
@@ -159,13 +160,16 @@ def preprocess(city_code, update_db=False, classify=True):
     
     if classify:
         for file in Path(folders[2]).glob(extension):
+            print(file)
+
             file_name = str(file).split("/")[-1].split("\\")[-1] 
-            command = '"'+ str(lasttols_path) + '/lasheight -i "' + str(file) + '" -ignore_class 2 -ignore_class 6 -ignore_class 7 -ignore_class 8 -ignore_class 9 -ignore_class 10 -ignore_class 11 -ignore_class 12 -ignore_class 13 -ignore_class 14 -ignore_class 15 -ignore_class 16 -ignore_class 17 -classify_between 0.0 0.5 3 -classify_between 0.5 2 4 -classify_between 2 70.0 5 -classify_above 70.0 5 -o "' +str(folders[3]) +'/'+ str(file_name) + '"'
+            command = '"'+ str(lasttols_path) + '/lasheight -i "' + str(file) + '" -ignore_class 2 -ignore_class 6 -ignore_class 7 -ignore_class 8 -ignore_class 9 -ignore_class 10 -ignore_class 11 -ignore_class 12 -ignore_class 13 -ignore_class 14 -ignore_class 15 -ignore_class 16 -ignore_class 17 -classify_between 0.0 0.5 3 -classify_between 0.5 2 4 -classify_between 2 70.0 5 -classify_above 70.0 5 -o "' +str(folders[3]) +'\\'+ str(file_name) + '"'
             os.system(command)    
     
     extension = '*.las' 
-    #for file in Path(folders[3]).glob(extension):  
-    #   cluster_dbscan.cluster(file, 1,2, city_code)
+    print(folders[3])
+    for file in Path(folders[3]).glob(extension):  
+       cluster_dbscan.cluster(file, 1,2, city_code)
     
     
         
@@ -173,6 +177,6 @@ def preprocess(city_code, update_db=False, classify=True):
 #extension = '*.las' 
 #for file in Path(all_folders[3]).glob(extension):   
 #    cluster_dbscan.cluster(file)
-preprocess(city_code=2, update_db= False, classify=True)
+preprocess(city_code=2, update_db= False, classify=False)
 #preprocess(city_code=1, update_db= False, classify=True)
 

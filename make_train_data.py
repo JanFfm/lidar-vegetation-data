@@ -102,9 +102,10 @@ def make_images(list_of_points, gattung, save_path, counter):
 
         
 
-csv_folder ='clusters/dbscan_color'
+csv_folder ='clusters/dbscan'
 extension = '*.csv' 
 
+"""    
 
 features_list = []
 print("readinf files")
@@ -129,10 +130,9 @@ for file in tqdm(Path(csv_folder).glob(extension)):
                 ys =ind['y']
                 zs = ind['z']
                 points = np.array([xs,ys,zs]).transpose()
-                make_images(points, gattung, 'D://train_data_images_z_intensity', img_counter)
+                make_images(points, gattung, 'D://train_data_images_z_intensity_gelsenkirchen', img_counter)
                 img_counter +=1
 
-"""    
 
             
         
