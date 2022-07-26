@@ -7,7 +7,14 @@ from PIL import Image
 import visualize
 import os
 
-def rails(las_file="demo/3dm_32_335_5728_1_nw.laz", size=5000):
+
+def rails(las_file="demo/3dm_32_335_5728_1_nw.laz", size=5000):    
+    """ gets las file
+        download of railway-area layer from open.nrw
+        size= image resolution
+        maps rail-classifiaction to nearest point in lidar
+        saves inplace
+    """
     las = laspy.read(las_file)
     wms_nrw = "https://www.wms.nrw.de/geobasis/wms_nw_inspire-verkehrsnetze_alkis"
     wms = WebMapService(wms_nrw, version='1.3.0',username="")
@@ -46,8 +53,7 @@ def rails(las_file="demo/3dm_32_335_5728_1_nw.laz", size=5000):
     l, l_num = np.unique(rail, return_counts=True)
     print(dict(zip(l, l_num)))
     las.points['classification'] = np.array(list(map(lambda c, r: r if r==10 and c==2 else c,  las.points['classification'] , rail)))  
-    visualize.plot_las_3d(las, color='classification')
+    #visualize.plot_las_3d(las, color='classification')
     print("saving", las_file)
-    #las_file = str(os.path.join(os.getcwd(), las_file))
-
-    #las.write(las_file)
+    las_file = str(os.path.join(os.getcwd(), las_file))
+    las.write(las_file)
