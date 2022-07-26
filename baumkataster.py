@@ -15,6 +15,12 @@ kataster_koeln = "baumkataster/Bestand_Einzelbaeume_Koeln_0_repaired.csv"
 kataster_wesel = "baumkataster/Baumkataster.csv"
 kataster_wesel_json = "baumkataster/Baumkataster.geojson"
 db = db_settings.db()
+"""
+funktions to read tree-kataster informations from citys Wesel, Köln, Gelsenkirchen
+"""
+
+
+
 def read_kataster_gelsenkrichen():
     kataster = pandas.read_csv(kataster_gelsenkirchen, sep=';', encoding ='utf-8')
     kataster = kataster[kataster.BAUMART != 'NaN']
@@ -177,6 +183,9 @@ def check_gattung_in_db(gattungs_list):
 
 
 def read_koeln_kataster():
+     """
+    reads kataster-file for köln and saves all trees to db
+    """
     kataster = pandas.read_csv(kataster_koeln, sep=';', encoding ='utf-8')
     #kataster = kataster[kataster.X_Koordina,kataster.Y_Koordina, kataster.Gattung, 1]
     
@@ -241,8 +250,12 @@ def read_koeln_kataster():
     db.execute(w_request)
     db.commit()
  
- 
+
+
 def read_kataster_wesel():
+    """
+    reads kataster-file for wesel and saves all trees to db
+    """
     with open(kataster_wesel_json) as kataster_file:
         gj = geojson.load(kataster_file)
     w_request = """INSERT INTO lidar_proj.trees (x,y,ID_GATTUNG, CITY_ID) VALUES"""
@@ -303,8 +316,13 @@ def read_kataster_wesel():
     db.execute(w_request)
     db.commit()
  
+
+
+
 def compare_kataster_lidar_mapping(city_code=3):
-    #request = """SELECT * FROM lidar_proj.trees WHERE city=""" + str(city_code)
+    """
+    maps each tree in database to lidar files of a certain city with id=city_code
+    """
     request = """SELECT * FROM lidar_proj.trees WHERE city=""" + str(city_code)
 
     trees =db.export_to_pandas(request)
@@ -336,4 +354,4 @@ def compare_kataster_lidar_mapping(city_code=3):
         
 #read_kataster_wesel()
     
-read_kataster_gelsenkrichen()
+#read_kataster_gelsenkrichen()
