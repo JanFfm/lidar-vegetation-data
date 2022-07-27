@@ -1,9 +1,7 @@
-import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import csv
 from pathlib import Path
-import matplotlib.pyplot as plt
 from PIL import Image
 import os
 
@@ -44,11 +42,7 @@ def make_featue_set(df_list, savepath='feature_list_color.csv', extract_colors=F
         
 
         features_list.append(dic)
-        
-        
-    
-                
-        
+       
     with open(savepath, 'w', newline='') as csvfile:        
         writer = csv.DictWriter(csvfile, keys, extrasaction='ignore')
         writer.writeheader()                
@@ -59,14 +53,7 @@ def extract(values):
         features = []
         for ax in values:
                 features += [np.mean(ax), np.median(ax), np.min(ax), np.max(ax),np.std(ax)]
-        return features
-        
-
-
-
-
-
-
+        return features    
 
 
 
@@ -96,43 +83,5 @@ def make_images(list_of_points, gattung, save_path, counter):
 
 
                
-        
-        
-#make_images([[1,0,1],[0,1,0], [0.001, 0.33, 0.75]])
 
-        
-
-csv_folder ='clusters/dbscan'
-extension = '*.csv' 
-
-"""    
-
-features_list = []
-print("readinf files")
-
-for file in tqdm(Path(csv_folder).glob(extension)):        
-        df = pd.read_csv(file)
-        features_list.append(df)     
-   
-make_featue_set(features_list)
-"""
-img_counter = 0
-for file in tqdm(Path(csv_folder).glob(extension)):  
-        individuals = []
-        df = pd.read_csv(file)
-        cluster_ids = np.unique(np.array(df['Cluster_ID']).astype(int))
-        for id in cluster_ids:
-                df_split =df[df['Cluster_ID'] == id]
-                individuals.append(df_split)
-        for ind in individuals:
-                gattung = np.array(ind['GATTUNGS_ID'])[0]
-                xs = ind['x']
-                ys =ind['y']
-                zs = ind['z']
-                points = np.array([xs,ys,zs]).transpose()
-                make_images(points, gattung, 'D://train_data_images_z_intensity_gelsenkirchen', img_counter)
-                img_counter +=1
-
-
-            
         

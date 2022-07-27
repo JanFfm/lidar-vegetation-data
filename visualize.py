@@ -1,8 +1,5 @@
-import imp
-import laspy
 import open3d as o3d
 import numpy as np
-from pathlib import Path
 import random
 from tqdm import tqdm
 from colors import get_classification_color
