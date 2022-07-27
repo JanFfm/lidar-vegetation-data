@@ -6,12 +6,14 @@ from PIL import Image
 import os
 
 def make_featue_set(df_list, savepath='feature_list_color.csv', extract_colors=False):
-        """_summary_
+        """extracts features from a list of pandas.DataFrame, where each df repesents one or more trees
+        build csv wirh one row for each tree with extraced features
+        to train svm, decission tree random forest
 
         Args:
         df_list (list): list of pandas.DataFrame
-        savepath (str, optional): _description_. Defaults to 'feature_list_color.csv'.
-        extract_colors (bool, optional): _description_. Defaults to False.
+        savepath (str, optional): save_path for csv. Defaults to 'feature_list_color.csv'.
+        extract_colors (bool, optional): if True, color values will be extracted, Else: Only spatial informations. Defaults to False.
         """
         individuals = []
         features_list = []
@@ -57,13 +59,13 @@ def make_featue_set(df_list, savepath='feature_list_color.csv', extract_colors=F
 
 
 def extract(values):
-        """_summary_
+        """calculates set of features 
 
         Args:
-        values (_type_): _description_
+        values (list): set of value lists, like [xs,ys,zs,r,g,b,nir]
 
         Returns:
-        _type_: _description_
+        list: feature list
         """
         features = []
         for ax in values:
@@ -74,13 +76,13 @@ def extract(values):
 
 
 def make_images(list_of_points, gattung, save_path, counter):
-        """_summary_
+        """maps clustes from trees in lidar data to 2d-array/2d-image
 
         Args:
-            list_of_points (_type_): _description_
-            gattung (_type_): _description_
-            save_path (_type_): _description_
-            counter (_type_): _description_
+            list_of_points (list): ponit cloud repesentation of tree
+            gattung (int): id off genus in db, additional save folder
+            save_path (str): path to save images
+            counter (int): number to make individual file names 
         """
         
         list_of_points = np.array(list_of_points)
