@@ -7,9 +7,15 @@ import visualize
   
 
         
-    
-#raus!!??    
+  
 def k_means_with_given_centroids( labels, points_to_cluster):
+    """gets a lsit of clusters (from dbscan usually)
+    extract one point from one of these clusters as centroids fpr k-means algorithm
+
+    Args:
+        labels (list): list of cluster-labels
+        points_to_cluster (list):list of points to cluster
+    """
     used_labels = []
     centroids= []
     print("number of labels: ", labels.max())
@@ -32,7 +38,16 @@ def k_means_with_given_centroids( labels, points_to_cluster):
     visualize.plot_cluster(points_to_cluster, kmeans_color_map)
 
 
-def k_means( centroids, points_to_cluster, iterations, plot=False):        
+def k_means( centroids, points_to_cluster, iterations=1, plot=False):  
+    """
+    get a  list of centroids (usually from Canop Hight Model) for k-means
+    
+    Args:
+        centroids (list): List of x,y,z points as centroids
+        points_to_cluster (list):  List of x,y,z points to cluster
+        iterations (int): number of iterations fpr ke-means
+        plot(bool): if True, a 3D-visualization of the clusters will be shown 
+    """      
     print("starting k-means:")
     centroids = np.array(centroids)
     kmeans = KMeans(n_clusters=len(centroids) , max_iter=iterations,init=centroids, n_init=1, tol=0.01).fit(points_to_cluster)
