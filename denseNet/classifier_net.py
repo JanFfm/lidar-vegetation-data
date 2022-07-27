@@ -1,15 +1,6 @@
 
 import monai
 import math
-from monai.transforms import ( Compose,
-    AsDiscrete,
-    Compose,
-    LoadImage,
-    Resize,
-    AsChannelFirst,
-    ToNumpy,
-    AsChannelLast, 
-)
 import monai.metrics 
 import monai.data
 import monai.networks.nets  
@@ -26,20 +17,25 @@ from sklearn.model_selection import train_test_split
 import db_settings
 
 
-"""
 
-"""
 class classifier_network:
-    def __init__(self, image_files, labels, size=256, network_name="classifier", network=None, drop=0.0, weight=1, threshold=0.5): 
+    """
+    Class for creating and traing the classifier network
+    image_files :list of image files for training set
+    labels :corresponding list of labels
+    size=256 : image size for rescaling
+    network_name="classifier"  : for savong model
+    network=None : Network class, if None monai.networks.DenseNet121. will be used
+    drop=0.0 dropout rate
+    weight=1 factor to multiply with pos_weight 
+    """
+    def __init__(self, image_files, labels, size=256, network_name="classifier", network=None, drop=0.0): 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        #self.device='cpu'
         print(self.device)
         self.network_name = network_name     
         self.size = size
-        self.weight = weight
         if self.weight == 0:
             self.weight=1
-        self.threshold =threshold
         print("pos weight:", self.weight)
         self.image_files = image_files
         self.labels = labels
@@ -50,50 +46,33 @@ class classifier_network:
         
         #https://docs.monai.io/en/latest/networks.html#classifier       
         if network == None:         
-            self.net = monai.networks.nets.DenseNet121(spatial_dims=2, in_channels=3, out_channels=self.class_number, dropout_prob=drop).to(self.device)
-            """
-            self.net = monai.networks.nets.Classifier(            
-            in_shape=(3, size,size), 
-            classes=self.class_number,
-            channels=(64, 128, 256, 512),
-            strides = (2,2, 2),
-            dropout = 0.2,
-            act='PRELU',   
-            kernel_size=9, 
-            num_res_units=2,
-            ).to(self.device)            
-            """   
+            self.net = monai.networks.nets.DenseNet121(spatial_dims=2, in_channels=3, out_channels=self.class_number, dropout_prob=drop).to(self.device)           
 
         else:
             self.net=network.to(self.device)        
-        
-        #according to https://github.com/Project-MONAI/tutorials/blob/master/2d_classification/mednist_tutorial.ipynb : 
+       
         self.loss_fn= torch.nn.CrossEntropyLoss() 
-        #different loss-fkt for validation/test because there is no weighting of loss values   
-        #self.val_loss= torch.nn.CrossEntropyLoss()
         self.optimizer =torch.optim.Adam(self.net.parameters(), lr=0.001) 
         self.accuracy = Accuracy().to(self.device)   
 
 
-    """
-    prints network config
-    """
+
     def get_network_config(self):
-        print(self.net)
-        
-    def load(self,path):
-        self.net.load_state_dict(torch.load(path))
+        """
+        prints network config
+        """
+        print(self.net)       
 
 
 
-    """
-    loads the data-sets. 
-    must be called before training
-    """
     def get_data(self, batch_size=4):
+        """
+        loads the data-sets. 
+        must be called before training
+        """
         self.batch_size = batch_size
 
-        # hier splitten:
+      
         X_train, X_test, y_train, y_test = train_test_split(self.image_files, self.labels, test_size=0.33, random_state=42)
 
         l, l_num = np.unique(y_train, return_counts=True)
@@ -105,12 +84,12 @@ class classifier_network:
         self.training_set  = classifier_train_data.train_data(img_files = X_train ,labels=y_train, size=self.size)
         self.val_test_set = classifier_test_data.test_data(img_files = X_test ,labels=y_test, size=self.size)
 
+        #split of test and validation set:
         val_size = int(len(self.val_test_set) * 0.3)
         test_size = len(self.val_test_set) - val_size
         print(val_size)
         print(test_size)
 
-        #split testset in train and validation set
         self.validation_set, self.test_set = torch.utils.data.random_split(self.val_test_set,[val_size,test_size], generator=torch.Generator().manual_seed(98))   
 
         self.train_loader = monai.data.DataLoader(self.training_set, batch_size=batch_size, num_workers=0, shuffle=True )
@@ -118,13 +97,13 @@ class classifier_network:
         self.test_loader = monai.data.DataLoader(self.test_set, batch_size=batch_size ,num_workers=0, shuffle=False)
         
 
-    """
-    start training
-    epochs: number of training epochs
-    search_treshhold=True : if true, a list of possible thresholds will be tested at each minimum validation loss
     
-    """
     def train(self, epochs=5):
+        """
+        start training
+        epochs: number of training epochs
+        
+        """
         ###saves scores from each epoch:
         softmax = torch.nn.Softmax(dim=1)
         losses = []
@@ -153,7 +132,6 @@ class classifier_network:
                 pred = self.net(X.float()) 
                 pred = softmax(pred).to(self.device)  
                 y = y.type(torch.LongTensor).to(self.device)  
-                #with torch.autocast(self.device):
                 loss =self.loss_fn(pred,y)            
        
                 # Backpropagation
@@ -189,8 +167,6 @@ class classifier_network:
                 y = y.type(torch.LongTensor).to(self.device)  
 
                 loss =self.loss_fn(pred,y)
-
-                # count poitiv examples in validation set:
   
                 v_meanloss = v_meanloss + loss.item()
                 v_counter = v_counter + 1
@@ -198,8 +174,7 @@ class classifier_network:
                 #calculating acc score:
                 
                 acc = float(self.accuracy(pred, y))
-                acc_list.append(acc)         
-             
+                acc_list.append(acc)                
 
               
 
@@ -214,6 +189,7 @@ class classifier_network:
      
             print("accuracy: ", accuracy_score)           
             
+            #selecting best performing models:
             if (max(acc_scores) == accuracy_score):
                 print("new best accuracay!")
                 acc_test = self.test()
@@ -238,12 +214,10 @@ class classifier_network:
         plt.close() 
        
 
-        #plot accurray f-score
+        #plot accurray-score
         x = [i for i in range(epochs)]
         plt.plot(x, acc_scores, label="val_accuracy")
         plt.plot(acc_scores_test_epochs, acc_scores_test, label="test_accuracy")
-
-
         plt.xlabel("epoch")
         plt.ylabel("score")
         plt.yticks(np.arange(0, 1.1, 0.1))
@@ -252,11 +226,11 @@ class classifier_network:
         plt.savefig(plot_name)  
         plt.show()
         plt.close() 
-  
-    """
-    run test set
-    """
-    def test(self):
+
+    def test(self):          
+            """
+            run test set
+            """
             softmax = torch.nn.Softmax(dim=1)
 
             #eval:
@@ -267,13 +241,12 @@ class classifier_network:
             
             self.first_run = True
             for _, (X, y, _) in enumerate(self.test_loader):
-                X = X.to(self.device) #!!!!!!!
+                X = X.to(self.device) 
                 y = y.to(self.device)
                 pred = self.net(X.float()) 
                 pred = softmax(pred).to(self.device)   
                 y = y.type(torch.LongTensor).to(self.device)  
 
-                #with torch.autocast( self.device):
                 loss =self.loss_fn(pred,y)
                                 
                 acc = float(self.accuracy(pred, y))
@@ -290,32 +263,37 @@ class classifier_network:
             return accuracy_score
 
 
-    """
-    saves network to networks/classifier/
-    name: filename
-    returns save_path
-    
-    """
+
     def save(self, name):
+        """
+        saves network to networks/classifier/
+        name: filename
+        returns save_path
+        
+        """
         path = self.network_name
         os.makedirs(path, exist_ok=True)
         name = path +"/" +name+ "_network"
         torch.save(self.net.state_dict(), name)
         return name
 
-   
 ########################################################################################################################
 
 
 
-    """
-    Instantiates classifier_network
-    reads image list from  folders before
-    
-    folder_list:  
  
-    """
-def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, name='network', drop=0.0, network=None, weight=1, threshold=0.5, gingko_to_conifera=None):
+def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, name='network', drop=0.0, gingko_to_conifera=None):
+        """
+        Instantiates classifier_network
+        reads image list and labels from folder structur
+        size=512 : image size for rescaling
+        name : network name/ file name
+        taxon : biological taxon the labels will be casted to, musst be "class", "order" or "family"
+        gingko_to_conifera : if True, all members  of class ginko will be casted to conifera, like older biological papers do
+        n_min: minim indivduums a group moust have to be used (else they will be dropped)
+        n_max: larger groups will be downsampled
+        drop=0.0 dropout rate
+        """
         db =db_settings.db(autocommit=False)
         req_families = """SELECT * FROM lidar_proj.familien"""
         req_order = """SELECT * FROM lidar_proj.ordnungen"""
@@ -342,9 +320,7 @@ def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, na
         dict_families =df_families.to_dict(orient="index")
         dict_order =df_order.to_dict(orient="index")
         dict_class =df_class.to_dict(orient="index")
-        print(dict_gattung[1])
-
-        
+        print(dict_gattung[1])        
         try:
             image_dir = '//content/drive/MyDrive/Colab Notebooks/train_data_images_z_intensity_gelsenkirchen'
             image_files = []
@@ -362,13 +338,11 @@ def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, na
                 for child in Path((image_dir +"/"+ str(i))).iterdir():
                     img = image_dir +"/"+ str(i) +"/" + child.name
                     image_files.append(img)
-                    labels.append(i)
-                
+                    labels.append(i)                
                 
         image_files = np.array(image_files)
         if taxon=='class':
             labels = np.array(list(map(get_class, labels)))
-
 
             if gingko_to_conifera:
                 labels = np.array(list(map(lambda x: 2 if x==3 else x, labels)))
@@ -378,7 +352,6 @@ def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, na
         elif taxon =='order':
             labels = np.array(list(map(get_family, labels)))
             print(labels)
-
 
         l, l_num = np.unique(labels, return_counts=True)
         count_dict = dict(zip(l, l_num))
@@ -390,9 +363,7 @@ def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, na
 
         data = {}
         for l in used_labels:   
-            data[l] = image_files[labels == l]
-   
-
+            data[l] = image_files[labels == l] 
 
         images = []
         labels = []
@@ -410,39 +381,60 @@ def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, na
 
         labels, _ =scale_y(labels)     
         images =np.array(images)
-        labels = np.array(labels) 
-        
-        print(labels.shape, images.shape)
-
-                
-       
-
-        net = classifier_network(images,labels, size, network_name=name,drop=drop, network=network, weight=weight, threshold=threshold)
-
+        labels = np.array(labels)      
+        net = classifier_network(images,labels, size, network_name=name,drop=drop, network=None)
         return net
+    
+    
+    
 
 def get_class(id):
+    """gets class-id of genus
+
+    Args:
+        id (int): id of genus
+
+    Returns:
+        int: id if class
+    """
     family = dict_families[dict_gattung[id]['ID_FAMILIE']]
     order = dict_order[family['ID_ORDNUNG']]
     c = order['ID_KLASSE']
     return c
 def get_order(id):
+    """get order id of genis
+
+    Args:
+        id (int): id of genus
+
+    Returns:
+        int: id of order
+    """
     family = dict_families[dict_gattung[id]['ID_FAMILIE']]
     o = family['ID_ORDNUNG']
     return o
 def get_family(id):
+    """get family id of genis
+
+    Args:
+        id (int): id of genus
+
+    Returns:
+        int: id of family
+    """
     f = dict_gattung[id]['ID_FAMILIE']
     return f
 
 
 def scale_y(y):
-    """translates a list of labels with unsorted numbers to a labeling starting with [0,1,2,...]
+    """translates a list of labels with unsorted,discontinuous label ids to a labeling starting with [0,1,2,...]
 
     Args:
-        y (_type_): _description_
+        y (list): list of labels
 
     Returns:
-        _type_: _description_
+        list: new list of labels
+        dic: to re-do label transformation
     """
     labels = np.unique(y)
     y_new = [i for i in range(len(labels))]
@@ -452,17 +444,3 @@ def scale_y(y):
     y = [translator[i] for i in y]
     return y, re_translate
         
-"""label_folders = [x[0] for x in os.walk('G:/Meine Ablage/Colab Notebooks/train_data_images_z_intensity')]
-folder_list = list(map(lambda x: int(x.split('\\')[-1]), label_folders[1:]))
-print(folder_list)
-#labels, _ = scale_y(label_folders)
-#print(labels)
-
-drop = 0.1
-
-network_name = "Dense121_order"
-
-network =create_network(folder_list, size=256, taxon='oder',name=network_name,drop=drop, n_min=150)
-network.get_data()
-network.train(300) 
-"""

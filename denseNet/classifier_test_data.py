@@ -1,22 +1,20 @@
 import monai 
 import cv2
 from monai.transforms.utility.array import AsChannelLast
-import pandas as pd
-import numpy
 import torch
-from monai.transforms import (Compose, AsChannelFirst,Resize,ScaleIntensity, RandGaussianSharpen, SpatialPad, ToTensor, Zoom, LoadImage,RandScaleCrop,OneOf, RandHistogramShift,RandCoarseDropout,AddChannel,RandFlip,RandZoom, RandRotate,EnsureType,NormalizeIntensity, Flip,  RandAdjustContrast, RandGaussianSmooth,RandBiasField,RandStdShiftIntensity,  GaussianSharpen,RandGaussianNoise, HistogramNormalize, RandGibbsNoise, RandKSpaceSpikeNoise, Rotate, compose)
+from monai.transforms import (Compose, AsChannelFirst,Resize,ScaleIntensity, ToTensor,EnsureType)
 
 
-"""
-Stores image data for test set for classifier network
-does no augmentation
-img_files: list of file names
-labels: .csv
-mask_files=None : list of file_names 
-size=512 :image size
-return image, label, img_file
-"""
+
 class test_data(monai.data.Dataset):
+    """
+    Stores image data for test set of classifier network
+    does no augmentation
+    img_files: list of file names
+    labels: list of labels
+    size=512 :image size
+
+    """
     def __init__(self, img_files,labels,  size=256):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.labels = labels
@@ -27,11 +25,14 @@ class test_data(monai.data.Dataset):
     def __len__(self):
         return len(self.img_files) 
 
-    """
-    called by dataloader
-    idx (int) index of image
-    """    
+  
     def __getitem__(self, idx):
+        """
+        called by dataloader
+        idx (int) index of image
+        
+        return image, label, img_file
+        """  
         #load image transform
         self.trans_load_image = Compose([
              AsChannelFirst(),
@@ -55,7 +56,6 @@ class test_data(monai.data.Dataset):
         image = self.fit_network_transform(image) 
         #load label:
         label = self.labels[idx] 
-        #label = float(label)
-        #label = numpy.array([label])       
+    
 
         return image, label, img_file
