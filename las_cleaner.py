@@ -10,9 +10,7 @@ def clean_las(file, save_path="cleaned"):
     """
     
     las = laspy.read(file)
-    x = las.point_format
-    #if int(las.point_format.id ) < 8:    
-    #       las = laspy.convert(las, point_format_id=8)
+
     print(las.point_format)
     classifications = numpy.array(las.points['classification'])
     for i in tqdm(range(len(classifications))):

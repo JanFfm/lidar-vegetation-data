@@ -1,19 +1,22 @@
 import coord_f 
 import fetch_sat_data
-from tqdm import tqdm
 import numpy as np
-import pandas as pd
 import laspy
-import visualize
 from datetime import datetime
-from pathlib import Path
 import os
 
 def colorize(las_file, save_path="D://colorized_las"):
+        """loads las file and gets r g b and nir values from sat data
+        saves to new file
+
+        Args:
+            las_file (str): las_file path
+            save_path (str, optional): path to save las. Defaults to "D://colorized_las".
+        """
         las = laspy.read(las_file)
         las = laspy.convert(point_format_id=8, source_las=las)
-        img, nir_img, cir_img = get_color_map(las)
-        las = map_pixels(las, img, nir_img, cir_img )
+        img, nir_img, cir_img = _get_color_map(las)
+        las = _map_pixels(las, img, nir_img, cir_img )
         file_name = str(las_file).split('/')[-1]
         file_name = str(file_name).split('\\')[-1]
         file_name = str(file_name).split('.')[-2]
@@ -28,7 +31,15 @@ def colorize(las_file, save_path="D://colorized_las"):
         
 
 
-def get_color_map(las):
+def _get_color_map(las):
+        """gets coordinates from las to load satelite data
+
+        Args:
+            las (laspy.las): las-data
+
+        Returns:
+            [nd.array]: images from satelite data
+        """
         las_points_x = np.array(las.points['x']) 
         las_points_y = np.array(las.points['y'])        
         x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
@@ -37,7 +48,11 @@ def get_color_map(las):
    
         return fetch_sat_data.fetch(min_coords[0], min_coords[1], max_coords[0], max_coords[1])
 
-def map_pixels(las, img, nir_img, cir_img):
+def _map_pixels(las, img, nir_img, cir_img):
+        """
+        map pixel values of images to nearest las points to get r g  b and nir values
+        
+        """
         start_time = datetime.now()
 
         las_points_x = np.array(las.points['x']) 
@@ -45,19 +60,15 @@ def map_pixels(las, img, nir_img, cir_img):
         x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
     
         x_factor = ((x_max - x_min)* 10) / (img.shape[1]- 1) 
-        #print(x_max, x_min)
-        #print(img.shape)
+
         y_factor = ((y_max - y_min)* 10) / (img.shape[0] -1) 
-        #print (x_factor, y_factor)
-        #print(((y_max - y_min)* 10) /y_factor)
-        
-        #print(list(las.point_format))
+
         print("calculating offset:")
         x_modi = list(map(lambda x :  (x- x_min)*10, las.points['x']))
         y_modi = list(map(lambda y :  (y_max - y)*10, las.points['y']))
         print("calculating coordiantes:")
 
-        img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   #int() faktor 10 scheint hier egal zu sein?!
+        img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   
         img_y = list(map(lambda y: int(round((y /y_factor),0)), y_modi)) 
         print("calculating channel red:")
 
@@ -72,23 +83,3 @@ def map_pixels(las, img, nir_img, cir_img):
         print("finish!")
         print("time needed: ", datetime.now() - start_time)
         return las
-""" 
-extension = '*.las' 
-folder ='lidar-files/4categorized/Wesel'
-print("Colorizing ", folder)
-for file in tqdm(Path(folder).glob(extension)):
-    colorize(file,save_path="D://colorized_las/Wesel")
-    
-folder ='lidar-files/4categorized/Köln'
-print("Colorizing ", folder)
-
-"""
-"""
-extension = '*.las' 
-
-folder ='lidar-files/4categorized/Gelsenkirchen'
-for file in tqdm(Path(folder).glob(extension)):
-    colorize(file,save_path="D://colorized_las/Gelsenkirchen")
-
-"""
-

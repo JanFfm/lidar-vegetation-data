@@ -12,7 +12,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 def check_dir(dir="./gelsenkirchen", cat=10, type="laz"):
-    """_summary_
+    """
     check if a lidar-cetegory number (eg 10 for railway) is tagged in a  directory
     prints all files with this category
 
@@ -34,4 +34,3 @@ def check_dir(dir="./gelsenkirchen", cat=10, type="laz"):
             las_file_path.append(file)
             print("categrory ", cat, " in ", file)
 
-check_dir()

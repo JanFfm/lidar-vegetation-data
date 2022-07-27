@@ -28,7 +28,6 @@ def rails(las_file="demo/3dm_32_335_5728_1_nw.laz", size=5000):
     x_min, y_min=  coord_f.utm_to_lat_long(x_min, y_min)   
     box=(y_min,x_min,y_max, x_max)
 
-    #box = (5.59334, 50.0578, 9.74158, 52.7998)
     img = wms.getmap(layers=[color_map],srs='EPSG:4326', bbox=box, format='image/jpeg',transparent=False, size=[size,size] )
     out = open('rails.jpg', 'wb')
     out.write(img.read())
@@ -42,10 +41,10 @@ def rails(las_file="demo/3dm_32_335_5728_1_nw.laz", size=5000):
     y_factor = ((y_max - y_min) / (img.shape[0] -1) )
     print("calculating offset:")
     x_modi = list(map(lambda x :  (x- x_min), las.points['x']))
-    y_modi = list(map(lambda y :  (y_max - y), las.points['y'])) # das stimt vielleicht nicht?
+    y_modi = list(map(lambda y :  (y_max - y), las.points['y'])) 
     print("calculating coordiantes:")
 
-    img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   #int() 
+    img_x = list(map(lambda x: int(round((x /x_factor),0)), x_modi))   
     img_y = list(map(lambda y: int(round((y /y_factor),0)), y_modi)) 
     print("mapping rails")
     rail =list(map(lambda x, y: 10 if not np.array_equal(img[y][x],np.array([255,255,255])) else 100 , img_x, img_y))

@@ -28,7 +28,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
     #prepare saving:
     print("connecting to database:")
     db =db_settings.db(autocommit=False)
-    print("requseting database")
+    print("requesting database")
 
     db_file_name = str(file).split('/')[-1].split('\\')[-1].split('.')[0]
     print(db_file_name)
@@ -75,7 +75,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
         if not os.path.exists(csv_save_path):
             
 
-            print("read las file...")
+            print("preparing las file...")
 
             algo_id = 1 #references dbsvan
             print("read las: ", file)
@@ -187,7 +187,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
                 if (len(c_id) > 0):
                     csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs})                  #, "red": rs, "green":gs, "blue": bs, "nir": nirs
                     csv_frame.to_csv(csv_save_path_doubles,mode='w')               
-                print(len(intersections2), " unambiguously clusters found")
+                print(len(intersections2), " unequivocall clusters found")
                                 
                 print(dropped, " clusters dropped beacause of multiple matches")
                 #scale 0:1
@@ -269,7 +269,6 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
                 print("time needed: ", datetime.now() - start_time)
             else:
                 print("") 
-
                 print("high vegetation points over limit ",limit)
                 with open('skipped.txt', 'a+') as f:
                     f.write(str(file))   
@@ -285,6 +284,15 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
             print("") 
          
 def cluster_las(las):
+    """clustering trees in las file without saving or mapping to tree-kataster
+    to use with classification algorithm
+
+    Args:
+        las (laspy.las): las data 
+
+    Returns:
+        list of dic: dic1: pounts in cluter, dict2: random colr for each cluster, dict3 indices of poits in las  file
+    """
     warnings.filterwarnings("ignore")
     start_time = datetime.now()
     print("time: ", start_time)    

@@ -1,6 +1,14 @@
 import numpy as np
 
 def get_classification_color(class_number):
+    """gives a rgb color for a lidar classification number
+
+    Args:
+        class_number (int): number of classification [0...18]
+
+    Returns:
+        list: [r,g,b]-value in range 0...1
+    """
     if int(class_number) > 18:
         return np.array([221,160,221]) / 255
     classification_colors ={
