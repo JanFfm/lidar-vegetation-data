@@ -27,20 +27,7 @@ import db_settings
 
 
 """
-Class for creating and traing the classifier network
-image_files :list of image files for training set
-test_files : list of image files for test set
-mask_files : list of mask files for training set
-test_mask_files  : list of mask files for test set
-label_csv : label file for training
-test_label_csv  : label file for testset
-size=512 : image size for rescaling
-network_name="classifier"
-network=None : Network class, if None monai.networks.nets.Classifier will be used
-use_noise=True : use intensity augmentations or not
-drop=0.0 dropout rate
-weight=1 factor to multiply with pos_weight 
-threshold=0.5: classification thresholf
+
 """
 class classifier_network:
     def __init__(self, image_files, labels, size=256, network_name="classifier", network=None, drop=0.0, weight=1, threshold=0.5): 
@@ -316,68 +303,17 @@ class classifier_network:
         torch.save(self.net.state_dict(), name)
         return name
 
-    """
-    plots example images for image augmentation
-    img_save_path=None : If not none, plots will be saved to this path
-    
-    """
-    def get_image_preview(self, img_save_path=None):
-        preview_data =  classifier_test_data.test_data(img_files = self.image_files,labels= self.label_csv, mask_files= self.mask_files, size=self.size)
-        preview_loader = monai.data.DataLoader(preview_data, batch_size=1, num_workers=0, shuffle=False )
-        for _, (X, _, img_file) in enumerate(preview_loader):
-            X = X.to("cpu")[0]
-            trans= Compose(
-                    [
-                    LoadImage(image_only=True), 
-                    AsChannelFirst(),       
-                    Resize([ self.size, self.size]), 
-                    AsChannelLast(), 
-                    ToNumpy()                               
-                ]
-                )   
-
-            file_name = str(img_file).split('.')[0]
-            file_name = file_name.split('/')
-            if (len(file_name) > 1):
-                file_name = file_name[len(file_name) -1]
-            title = "" +str(file_name) 
-            plt.clf()
-            fig=plt.figure()
-            fig.add_subplot(1,2,1)
-
-            image =trans(img_file)[0]
-            print(image.shape)
-            plt.axis('off')
-            plt.imshow(image.astype(np.uint8))
-            plt.title(title)
-            #ergebnis
-            fig.add_subplot(1,2,2)
-            trans = Compose([AsChannelLast(), ToNumpy()])
-            p= trans(X)
-            plt.axis('off')
-            plt.imshow(p)              
-            if img_save_path is not None:     
-                os.makedirs(img_save_path, exist_ok=True) 
-                plt.savefig(img_save_path +"/" + title+".png", dpi=300, bbox_inches='tight',pad_inches = 0) 
-            plt.show()
-            plt.close() 
+   
 ########################################################################################################################
 
 
 
     """
     Instantiates classifier_network
-    reads image list from isic folders before
-    size=512 : image size for rescaling
-    name : network name/ file name
-    use_gt (bool): if False, images will not be masked
-    network=None : Network class, if None monai.networks.nets.Classifier will be used
-    weight=1 factor to multiply with pos_weight 
-    use_noise=True : use intensity augmentations or not
-    threshold=0.5: classification threshold
-    gt_dir="ISIC/train_gt" : standart folder for train gt
-    test_gt_dir= 'ISIC/gt_test' : standart folder for test gt
-    drop=0.0 dropout rate
+    reads image list from  folders before
+    
+    folder_list:  
+ 
     """
 def create_network(folder_list, taxon='class', n_min=150, n_max=150,size=256, name='network', drop=0.0, network=None, weight=1, threshold=0.5, gingko_to_conifera=None):
         db =db_settings.db(autocommit=False)
