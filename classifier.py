@@ -1,15 +1,11 @@
 
-#from  whitebox.whitebox_tools import WhiteboxTools
 
 import laspy
-import visualize
 import os
-#import shapefile   #das wär eher für OsM
 import requests
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 from shapely.affinity import scale
-#import networkx as nx
 from tqdm import tqdm
 import xml.dom.pulldom as pulldom
 import numpy
@@ -18,14 +14,15 @@ import geopandas as gpd
 from datetime import datetime
 
 def read_buildings_nrw(file="3dm_32_334_5727_1_nw.laz", shapefile_folder="shapes"):
-    """_summary_
+    """reads comparing shape file of buildings for lidar-file
+    transfers buildings to  shapely.geometry.polygon.Polygon()
 
     Args:
-        file (str, optional): _description_. Defaults to "3dm_32_334_5727_1_nw.laz".
-        shapefile_folder (str, optional): _description_. Defaults to "shapes".
+        file (str, optional): name of las/laz-file. Defaults to "3dm_32_334_5727_1_nw.laz".
+        shapefile_folder (str, optional): save path for shape files. Defaults to "shapes".
 
     Returns:
-        _type_: _description_
+        list: buildings  as shapely.geometry.polygon.Polygon()
     """
     shapefile_folder = os.path.join(os.getcwd(), shapefile_folder)
     try:
@@ -76,12 +73,13 @@ def read_buildings_nrw(file="3dm_32_334_5727_1_nw.laz", shapefile_folder="shapes
 
 
 def map_points(file, p, save_path):
-    """_summary_
+    """classifies lidar files
+    uses intersection wirth building-polygons to classify points as lidar class 6
 
     Args:
-        file (_type_): _description_
-        p (_type_): _description_
-        save_path (str, optional): _description_. Defaults to "self_classi".
+        file (str): path of lidar file
+        p (list): list of building polygons
+        save_path (str, optional): save path for classified lidar file..
     """
     
     global glob_polygons
@@ -96,14 +94,10 @@ def map_points(file, p, save_path):
         print("insgesamt ", len(classifications), " Punkte")
         indices = numpy.array([i for i in range(len(classifications))])
         print("#############################")
-        #with Pool() as pool:
-        #las.points['classification']= list(map(map_fkt,l))
+
         buildings = gpd.GeoDataFrame({'geometry': p}, crs="EPSG:25832")
         
         #########draw image:
-        #buildings.plot(figsize=(6, 6))
-        #plt.show()
-        #plot_las.plot2d(las) 
         print(buildings)
         df = pandas.DataFrame({'i':indices, 'x': x, 'y':y,'classification': classifications })
         print("punkte ungefiltert:")
@@ -122,22 +116,17 @@ def map_points(file, p, save_path):
         print(building_points)
         print(datetime.now())
         save_path_csv = os.path.join(os.getcwd(), "geopandasgeopandas_inner_intersection.csv")
-        building_points.drop('coords',axis=1).to_csv(save_path_csv)
-        ###muss das vielleicht anders rum?
-        #print(building_points[0]['i'], building_points[0]['x'], building_points[0]['y'], building_points[0]['classification'])
+        building_points.drop('coords',axis=1).to_csv(save_path_csv)    
         for i in building_points['i']:
                 las.points['classification'][i] = 6
     else:
         print("no buildings in this area!")
 
-    #plot_las.plot2d(las) 
     
     file_name = str(file).split('/')[-1]
     file_name = str(file_name).split('\\')[-1]
     save_path = os.path.join(os.getcwd(), save_path)
-    
-    #if not os.path.exists(save_path):
-    #        os.mkdir(save_path)
+
     print("save to ", save_path)
     las.write(save_path)
                      
@@ -147,42 +136,17 @@ def read_csv():
     data_frame = pandas.read_csv("geopandas.csv")
     print(data_frame['i'])
     for i in data_frame['i']:
-        las.points['classification'][i] = 6
-    #plot_las.plot2d(las)
-          
+        las.points['classification'][i] = 6          
 
 
-  
-"""
-def wb_tools():
-    
-    wbt = WhiteboxTools()
-    wbt.set_whitebox_dir('C:/QGIS2/WBT')
-    wbt.set_verbose_mode(True)
-
-    file = os.path.join(os.getcwd(), "cleaned",  "3dm_32_334_5727_1_nw.laz" )
-
-
-    #gfs geht vielleicht
-    buildings = os.path.join(os.getcwd(),"building shape","OSM_buildings_wesel.shp")
-    #las = laspy.read(file)
-    save = os.path.join(os.getcwd(), "buildings_py.las")
-
-
-    ## linearity_threshold= 0.7, verringern wenn vegetation missclaiifiziert wird
-    ## planarity_threshold=0.85,  auch verringern
-    new_las = wbt.classify_buildings_in_lidar(i =file, output=save, buildings= buildings)
-
-    #plot_las.plot2d(save)
-"""  
 def get_polygon(points):
-    """_summary_
+    """transfer edge points of building to polygon
 
     Args:
-        points (_type_): _description_
+        points (list): (x,y,z) - 3d points of building
 
     Returns:
-        _type_: _description_
+        Polygon: 2d Polygon
     """
     x = list(map(float, points[::3]))
     y = list(map(float, points[1::3]))
@@ -191,7 +155,3 @@ def get_polygon(points):
     if (len(point_list) < 3):
         return None
     return Polygon(point_list)
-
-#polygons = read_buildings_nrw("3dm_32_330_5723_1_nw.las")
-
-#m#ap_points("lidar-files/2cleaned/Wesel/3dm_32_330_5723_1_nw.las", polygons, "test_2scale")

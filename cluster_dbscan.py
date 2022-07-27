@@ -1,24 +1,13 @@
-from scipy import ndimage as ndi
-from scipy.ndimage.filters import gaussian_filter
-from scipy.ndimage import median_filter
-from scipy.spatial import ConvexHull, convex_hull_plot_2d
-import matplotlib.pyplot as plt
-from skimage.feature import peak_local_max
-from skimage import img_as_float
-from PIL import Image
+
+from scipy.spatial import ConvexHull
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 from shapely.affinity import scale
-
 import laspy
 from sklearn.cluster import DBSCAN
 import numpy
 import os
-import matplotlib.pyplot as plt
 from tqdm import tqdm
-import coord_f
-import folium
-import visualize
 import db_settings
 import geopandas
 import pandas
@@ -28,11 +17,10 @@ import warnings
 import random
 
 def save(id,tree_id, gattung_id, save_path_id, algo_id):   
-    req = """ ("""+str(id) + """, """+str(tree_id)+""", """+str(gattung_id)+""", """+str(save_path_id)+""", """+str(algo_id)+"""),"""
-    #x, y, z = numpy.array(points).transpose()
-    #las = create_new_las.build_las(las_scale_factor, x,y,z, header=header)     
+    req = """ ("""+str(id) + """, """+str(tree_id)+""", """+str(gattung_id)+""", """+str(save_path_id)+""", """+str(algo_id)+"""),"""  
     return req #, las
-def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = [5], limit=7000000):
+
+def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
     warnings.filterwarnings("ignore")
     print("starting with ", file)
     start_time = datetime.now()
@@ -92,33 +80,23 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
             algo_id = 1 #references dbsvan
             print("read las: ", file)
             las = laspy.read(file)
-            #las_points_x = numpy.array(las.points['x']) 
-            #las_points_y = numpy.array(las.points['y'])
-            #x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
-            #x_range = x_max - x_min
-            #y_range = y_max - y_min
-            
-            #ength = len(las.points['x'])    
+  
             
             print("selecting points to cluster by classification")
             p_t_c= numpy.array([las.points['x'], las.points['y'], las.points['z']]).transpose()
             points_to_cluster = p_t_c[las.points['classification'] == 5]
-            #colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
-            #colors = colors[las.points['classification'] == 5]
+
             print("selecting idices of this poibts")
             if len(points_to_cluster) < limit: 
-                #indices_of_cluster_points = numpy.array([i for i in tqdm(range(length)) if (las.points['classification'][i] in classes_to_cluster)]) 
                 points_to_cluster2d = points_to_cluster[:,:2]
                 print("clustering")
-                cluster = DBSCAN(eps=0.6, min_samples=5).fit(points_to_cluster2d)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
+                cluster = DBSCAN(eps=0.6, min_samples=5).fit(points_to_cluster2d)  
                 labels = cluster.labels_
                 print("building dictionary:")
                 cluster_dict = {}
-                #color_dict = {}
                 for i in tqdm(numpy.unique(labels)):
                     if i >= 0:
                         cluster_dict[i] = points_to_cluster[labels == int(i)]
-                        #color_dict[i] = colors[labels == int(i)]
              
                 #x/y-convex hull
                 hull_dict = {}
@@ -133,15 +111,10 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                         poly = Polygon(points_2d[hull.vertices])
                         poly = scale(poly, xfact=1.1,yfact=1.1)
                         hull_dict[key] = poly
-                #db lockup baumkataster
 
                 print("trees in area:")
-                print(trees)
-
-
-                
-                # x und y zusammenfassen!
-                #dann:
+                print(trees)                
+   
                 print("building geopandas dataframes:")
                 trees['coords'] = numpy.array(zip(trees['X'],trees['Y']))
                 trees['coords'] = trees['coords'].apply(Point)
@@ -152,8 +125,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 hulls_df = geopandas.GeoDataFrame(hulls_df, geometry='coords', crs="EPSG:25832")
                 print("calculating joins")
                 intersections = geopandas.tools.sjoin(trees_df,hulls_df, op="intersects", how='inner') #intersects
-                print(len(intersections), " intersections found")
-                
+                print(len(intersections), " intersections found")               
                 
                 dropped= 0
                 intersections2 = intersections.copy()
@@ -167,22 +139,17 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 ys = []
                 zs = []
                 
-                #rs = [] 
-                #gs = []
-                #bs = []
-                #nirs = []
+             
 
                 for i, row in intersections.iterrows():
-                        cluster_key= row.HULL_DICT_KEY # index right war das vorher!
+                        cluster_key= row.HULL_DICT_KEY 
                         doubles = intersections.loc[intersections.index_right==cluster_key,:] 
                         if (len(doubles) > 1):
                             genus = []
                             for i, row in doubles.iterrows():            
                                 genus.append(row.ID_GATTUNG)
-                            #Prüfe: gibt es mehr als eine Gattungs-Zuordnung für diesen Cluster?
-                            #print(genus)
+                        
                             genus = set(genus)
-                            #print(genus)
                             if (len(genus) > 1):                
                                 if (row['index_right'] not in visited):
                                     dropped += len(doubles)
@@ -195,14 +162,12 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                         req = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """ + str(save(max_id, tree_id, gattung_id, save_doubles_id, algo_id))
                                         req= req[:-1]
                                         print(req)
-                                        #print("len cluster_dict:", len(cluster_dict[cluster_key]), "len points", len(c_las.x) )
                                         print("db execute at forest")
 
-                                        #db.execute(req) 
-                                        #db.commit()
+                                        db.execute(req) 
+                                        db.commit()
                                         save_path = os.path.join(save_doubles_to, str(max_id) + ".las")
                                         print("saving large cluster to ", save_path)
-                                        #c_las.write(save_path)
                                         for n_point in numpy.array(cluster_dict[cluster_key]):
                                                 c_id.append(max_id)
                                                 t_id.append(tree_id)
@@ -210,12 +175,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                                                 a_id.append(algo_id)
                                                 xs.append(n_point[0])
                                                 ys.append(n_point[1])
-                                                zs.append(n_point[2])
-                                        #for c in  color_dict[cluster_key]:    
-                                        #        rs.append(c[0])
-                                        #        gs.append(c[1])
-                                        #        bs.append(c[2])
-                                        #        nirs.append(c[3])
+                                                zs.append(n_point[2])                             
                     
                                         max_id += 1                            
                 
@@ -253,19 +213,13 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                 xs = []
                 ys = []
                 zs = []
-                
-                #rs = [] 
-                #gs = []
-                #bs = []
-                #nirs = []
+    
                 print("saving")
                 req  = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """
                 for k in tqdm(normalized_trees.keys()):
                     counter +=1
                     max_id += 1        
-                    normalized_points = normalized_trees[k]
-                    
-                    #colorized_points = color_dict[k]    
+                    normalized_points = normalized_trees[k]                    
                      
                     row_df = intersections2.loc[intersections2['HULL_DICT_KEY'] == k]
                     try:
@@ -280,7 +234,6 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                     req = req + str(save(max_id, tree_id, gattung_id, save_path_id, algo_id))       
 
                     save_path = os.path.join(save_to,str(max_id) + ".las")
-                    #c_las.write(save_path)
                     for n_point in numpy.array(normalized_points):
                         c_id.append(max_id)
                         t_id.append(tree_id)
@@ -289,32 +242,24 @@ def cluster(file, save_path_id, save_doubles_id,city_code, classes_to_cluster = 
                         xs.append(n_point[0])
                         ys.append(n_point[1])
                         zs.append(n_point[2])
-                    #for c in colorized_points:
-                    #    rs.append(c[0])
-                    #    gs.append(c[1])
-                    #    bs.append(c[2])
-                    #    nirs.append(c[3])
-                    
-
-
-                    
+                 
                     if counter % 100 == 0:
                         print("db execute at % 100")
 
                         req= req[:-1]
                         print(req)
-                        #db.execute(req)
+                        db.execute(req)
                         
                         print("commit")
-                        #db.commit()
+                        db.commit()
                         req  = """INSERT INTO LIDAR_PROJ.CLUSTER (ID, TREE_ID, ID_GATTUNG, PATH_ID, ALGO_ID) VALUES """
                 if (len(req) > 90):
                     print("last commit")
-                    #req= req[:-1]
-                    #db.execute(req)
-                    #db.commit()
+                    req= req[:-1]
+                    db.execute(req)
+                    db.commit()
                     
-                csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs}) #, "red": rs, "green":gs, "blue": bs, "nir": nirs
+                csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs}) 
 
                 print("save to ", csv_save_path)
 
@@ -344,7 +289,6 @@ def cluster_las(las):
     start_time = datetime.now()
     print("time: ", start_time)    
    
-    #x_max, x_min, y_max, y_min = las_points_x.max(),  las_points_x.min(), las_points_y.max(),  las_points_y.min()
 
     print("selecting points to cluster by classification")
     p_t_c= numpy.array([las.points['x'], las.points['y'], las.points['z']]).transpose()
@@ -353,10 +297,6 @@ def cluster_las(las):
     indices = numpy.array([i for i in range(len(las.points['x']))])
     indices = indices[las.points['classification'] ==5]
 
-    #colors =  numpy.array([las.points['red'], las.points['green'], las.points['blue'], las.points['nir']]).transpose()
-    #colors = colors[las.points['classification'] == 5]
-
-        #indices_of_cluster_points = numpy.array([i for i in tqdm(range(length)) if (las.points['classification'][i] in classes_to_cluster)]) 
     points_to_cluster2d = points_to_cluster[:,:2]
     print("clustering")
     cluster = DBSCAN(eps=0.6, min_samples=5).fit(points_to_cluster2d)  # parameters according to https://www.degruyter.com/document/doi/10.1515/geo-2020-0266/html?lang=de
@@ -377,40 +317,6 @@ def cluster_las(las):
 
     return cluster_dict, color_dict, indices_dict
 
-    #normalized_trees = {}
-    
-    """
-    print("normalizing clusters")
-    for i, row in tqdm(intersections2.iterrows()):
-        points = numpy.array(cluster_dict[row.HULL_DICT_KEY])
-        x , y, z = points.transpose()
-        x = numpy.array(x)
-        x = x - numpy.min(x)
-        y = numpy.array(y)
-        y = y - numpy.min(y)
-        z = numpy.array(z)
-        z = z - numpy.min(z)
-        points = numpy.array([x,y,z]).transpose()
-        points = points/ numpy.max(points)   
-        normalized_trees[row.HULL_DICT_KEY] = points
-    """
-  
-   
+
 
         
-
-        
-
-
-"""
-f ="lidar-files/4categorized/Wesel/3dm_32_335_5725_1_nw.las"
-extension = '*.las' 
-
-for file in Path("D:/colorized_las/Köln").glob(extension):    
-        cluster(file, 3,4, 1)
-        #print("############## failure")
-
-for file in Path("D:/colorized_las/Wesel").glob(extension):    
-        cluster(file, 3,4, 3)
-        #print("############## failure")
-"""
