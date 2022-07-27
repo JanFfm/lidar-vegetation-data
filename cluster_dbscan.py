@@ -16,11 +16,19 @@ from pathlib import Path
 import warnings
 import random
 
-def save(id,tree_id, gattung_id, save_path_id, algo_id):   
+def save(id,tree_id, gattung_id, save_path_id, algo_id): 
+    """ build db-request to save cluster to db
+    """  
     req = """ ("""+str(id) + """, """+str(tree_id)+""", """+str(gattung_id)+""", """+str(save_path_id)+""", """+str(algo_id)+"""),"""  
     return req #, las
 
 def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
+    """
+    file (str) las file
+    save_path id (int) id of save path in db
+    save_doubles_id (int) of of save path in db for ambiguous clusters (for later processign with other cluste algorithm)
+    limit (int): max number of high vegetation points. If count  > limit, the file will not be processed (because of runtime)
+    """
     warnings.filterwarnings("ignore")
     print("starting with ", file)
     start_time = datetime.now()
@@ -76,8 +84,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
             
 
             print("preparing las file...")
-
-            algo_id = 1 #references dbsvan
+            algo_id = 1 #references dbscan in db
             print("read las: ", file)
             las = laspy.read(file)
   
@@ -185,7 +192,7 @@ def cluster(file, save_path_id, save_doubles_id,city_code, limit=7000000):
                                 visited.append(row['index_right'])
                                 dropped += len(doubles) - 1
                 if (len(c_id) > 0):
-                    csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs})                  #, "red": rs, "green":gs, "blue": bs, "nir": nirs
+                    csv_frame = pandas.DataFrame({"Cluster_ID":c_id, "Tree_ID": t_id, "GATTUNGS_ID": g_id, "ALGO_ID": a_id, "x": xs, "y": ys, "z": zs})               
                     csv_frame.to_csv(csv_save_path_doubles,mode='w')               
                 print(len(intersections2), " unequivocall clusters found")
                                 

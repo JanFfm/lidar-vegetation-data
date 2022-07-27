@@ -51,8 +51,8 @@ crs_position = "EPSG:25832"
 def find(city_code, folder):
     print(folder)
     """
-    save lidar edges with city code to db
-    to match will tree entrys later
+    save lidar edge points of lidar files with according city code to db
+    to match tree entrys later
     """
     db = db_settings.db()
     extension = '*.laz' 
@@ -78,13 +78,22 @@ def find(city_code, folder):
     db.commit()
         
 def preprocess(city_code, update_db=False, classify=True):
+    """
+    process folder off according city with lidar-files
+    deletes unknown classification  numbers
+    detects buildins
+    classifies vegetation
+    and extracts clusters
+    
+    
+    """
     folders = all_folders[city_code - 1]
     
 
     if update_db:
         find(city_code=city_code, folder=folders[0])
         
-        print("db-requests ---")
+        print("db-requests...")
         #check files listetd to baumkataster:
         lidar_entrys =db.export_to_pandas("""SELECT * FROM lidar_proj.LIDAR_FILES WHERE CITY_ID=""" + str(city_code) +""" ORDER BY id""")
         trees =db.export_to_pandas("""SELECT * FROM lidar_proj.TREES WHERE CITY_ID=""" + str(city_code)+"""ORDER BY id""")
@@ -99,7 +108,7 @@ def preprocess(city_code, update_db=False, classify=True):
         for _, row in trees.iterrows():
             p = Point((row['X'],row['Y']))
             tree_points.append(p)      
-        print("checking, which lidar files is aprt of tree-collection...")
+        print("checking, which lidar files have trees in kataster informations")
 
         tree_points = geopandas.GeoDataFrame(pandas.DataFrame({'points': tree_points, 'index':trees.index, 'id':trees['ID']}), geometry='points', crs=crs_position)
         lidar_polys = geopandas.GeoDataFrame(pandas.DataFrame({'polygon': lidar_polygons, 'id':lidar_entrys.ID}), geometry='polygon', crs=crs_position)
@@ -131,7 +140,7 @@ def preprocess(city_code, update_db=False, classify=True):
     print("cleaning files from ", folders[0])
     extension = '*.laz' 
     counter = len(files_with_trees)
-    print(counter, " trees to clean")
+    print(counter, " files to clean left")
     
     for file in Path(folders[0]).glob(extension):         
         if str(file).split("/")[-1].split("\\")[-1].split('.')[0] in files_with_trees:     
@@ -141,9 +150,9 @@ def preprocess(city_code, update_db=False, classify=True):
             else:
                 print(folders[1] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las allready exists")
             counter -= 1
-            print(counter, " trees to clean left from ",len(files_with_trees))
+            print(counter, " files to clean left from ",len(files_with_trees))
         else:
-            print("skipping ", file)
+            print("skipping ", file , "becouse no trees are registrated in kataster information in this area")
     
     print("categorizing buildings")
     extension = '*.las' 
@@ -156,7 +165,7 @@ def preprocess(city_code, update_db=False, classify=True):
         else:
             print(folders[2] +"/" +str(file).split("/")[-1].split("\\")[-1].split('.')[0] + ".las allready exists")     
         counter -= 1
-        print(counter, " trees to classify left from ",len(files_with_trees))
+        print(counter, " files to classify left from ",len(files_with_trees))
     
     if classify:
         for file in Path(folders[2]).glob(extension):
@@ -173,10 +182,3 @@ def preprocess(city_code, update_db=False, classify=True):
     
     
         
-     
-#extension = '*.las' 
-#for file in Path(all_folders[3]).glob(extension):   
-#    cluster_dbscan.cluster(file)
-preprocess(city_code=2, update_db= False, classify=False)
-#preprocess(city_code=1, update_db= False, classify=True)
-

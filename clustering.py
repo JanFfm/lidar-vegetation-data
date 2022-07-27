@@ -1,6 +1,3 @@
-from array import array
-from operator import length_hint
-from tabnanny import verbose
 from sklearn.cluster import DBSCAN, KMeans
 
 import open3d as o3d
@@ -11,7 +8,6 @@ from tqdm import tqdm
 
 import random
 
-import plot_las
 from colors import get_classification_color
 import os
 import visualize
@@ -30,12 +26,7 @@ def dbscan_1(include_med_veg = False):
     classification = las.points['classification']
     number_of_returns = las.points['number_of_returns']
     print(number_of_returns)
-    
-    #plot_las.plot3d(las)
-    #r = las.points['red'] /255
-    #g = las.points['green'] /255
-    #b = las.points['blue'] /255
-    # number_of_returns[i] > 1 and 
+
     
     print("selectiong points for clustering")
     #### das exclude ist halt sehr lidar-nrw-spezifisch!!!!

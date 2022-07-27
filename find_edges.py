@@ -2,12 +2,13 @@ import laspy
 import db_settings
 from pathlib import Path
 import numpy as np
-"""
-Saves the name of each laz with corner-coordinates to db
 
-"""
 
 def find(city_code, folder):
+        """
+        Saves the name of each laz in folder with corner-coordinates to db
+
+        """
         db = db_settings.db()
 
 
